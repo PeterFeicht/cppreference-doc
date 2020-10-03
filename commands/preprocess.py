@@ -326,6 +326,21 @@ def remove_ads(html):
     for el in html.xpath('//script[@src]'):
         if 'carbonads.com/carbon.js' in el.get('src'):
             el.getparent().remove(el)
+    # Iterate on all blocks with code
+    for script in html.xpath('//script[@type]'):
+        # See Issue: https://github.com/PeterFeicht/cppreference-doc/issues/21#issue-703592821
+        # In this issue is show the script that generate the ads, this script have a length of
+        #   of 275 characters.
+        # We only look for the link to code with 275 characters or more.
+        # The link always is "s3.buysellads.com/ac/bsa.js", we use this link as a reference to
+        #   determine if our script is a candidate for removal.
+        if len(script.text) >= 275:
+            # This code: text[0:275], is a small optimization that avoids searching all over
+            #   the code for the key link.
+            # The end of the function is reached in character 275, looking for the link beyond
+            #   this limit is a waste of computational time.
+            if script.text[0:275].find('s3.buysellads.com/ac/bsa.js') != -1:
+                script.getparent().remove(script)
     for el in html.xpath('/html/body/style'):
         if el.text is not None and '#carbonads' in el.text:
             el.getparent().remove(el)
