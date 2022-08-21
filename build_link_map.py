@@ -48,11 +48,13 @@ def build_link_map(directory):
             continue
         text = m.group(1)
         text = re.sub(r'\s*', '', text)
-        m = re.search('"wgPageName":"([^"]*)"', text)
+        m = re.search(r'"wgPageName":"((?:\\"|[^"\\])+)"', text)
         if not m:
             continue
 
         title = m.group(1)
+        # unescape quotes in page title
+        title = title.replace(r'\"', r'"')
 
         target = os.path.relpath(os.path.abspath(fn),
                                  os.path.abspath(directory))
