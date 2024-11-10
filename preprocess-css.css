@@ -14,7 +14,7 @@ div#content {
 }
 
 html, body {
-    font-family: "DejaVu Sans", arial, sans-serif;
+    font-family: DejaVuSans, "DejaVu Sans", arial, sans-serif;
     font-size: 1em;
 }
 
@@ -32,21 +32,21 @@ pre,
 }
 
 .t-dcl-list-see-monospace > span {
-    font-family: "DejaVu Sans Mono", courier, monospace;
+    font-family: DejaVuSansMono, "DejaVu Sans Mono", courier, monospace;
 }
 
 .t-sb-list-ln-table tr > td:first-child {
-    font-family: "DejaVu Sans Mono", courier, monospace;
+    font-family: DejaVuSansMono, "DejaVu Sans Mono", courier, monospace;
 }
 
 .t-param-list-item > td:first-child {
-    font-family: "DejaVu Sans Mono", courier, monospace;
+    font-family: DejaVuSansMono, "DejaVu Sans Mono", courier, monospace;
 }
 
 .t-dcl-member-div > div:first-child {
-    font-family: "DejaVu Sans Mono", courier, monospace;
+    font-family: DejaVuSansMono, "DejaVu Sans Mono", courier, monospace;
 }
 
 .t-dcl-member-nobold-div > div:first-child {
-    font-family: "DejaVu Sans", arial, sans-serif;
+    font-family: DejaVuSans, "DejaVu Sans", arial, sans-serif;
 }
