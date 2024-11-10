@@ -392,7 +392,6 @@ def preprocess_html_file(root, fn, rename_map):
 
     remove_unused_external(html)
     remove_noprint(html, keep_footer=True)
-    remove_see_also(html)
     remove_google_analytics(html)
     remove_ads(html)
     remove_fileinfo(html)
