@@ -114,32 +114,36 @@ def print_members(out_f, link_map, curr_item):
         else:
             link = item.link
 
-        if item.kind == ItemKind.VARIABLE:
-            out_f.write(
-                '    <member kind="variable">\n' +
-                '      <type>T</type>\n' +
-                '      <name>' + xml_escape(item.name) + '</name>\n' +
-                '      <anchorfile>' + xml_escape(link) + '</anchorfile>\n' +
-                '      <anchor></anchor>\n' +
-                '      <arglist></arglist>\n' +
-                '    </member>\n')
-        elif item.kind == ItemKind.FUNCTION:
-            out_f.write(
-                '    <member kind="function">\n' +
-                '      <type>T</type>\n' +
-                '      <name>' + xml_escape(item.name) + '</name>\n' +
-                '      <anchorfile>' + xml_escape(link) + '</anchorfile>\n' +
-                '      <anchor></anchor>\n' +
-                '      <arglist>(T... args)</arglist>\n' +
-                '    </member>\n')
-        elif item.kind == ItemKind.CLASS:
-            out_f.write(
-                '    <class kind="class">' + xml_escape(item.full_name) +
-                '</class>\n')
-        elif item.kind == ItemKind.NAMESPACE:
-            out_f.write(
-                '    <namespace>' + xml_escape(item.full_name) +
-                '</namespace>\n')
+        print_member(out_f, item, link)
+
+
+def print_member(out_f, item, link):
+    if item.kind == ItemKind.VARIABLE:
+        out_f.write(
+            '    <member kind="variable">\n' +
+            '      <type>T</type>\n' +
+            '      <name>' + xml_escape(item.name) + '</name>\n' +
+            '      <anchorfile>' + xml_escape(link) + '</anchorfile>\n' +
+            '      <anchor></anchor>\n' +
+            '      <arglist></arglist>\n' +
+            '    </member>\n')
+    elif item.kind == ItemKind.FUNCTION:
+        out_f.write(
+            '    <member kind="function">\n' +
+            '      <type>T</type>\n' +
+            '      <name>' + xml_escape(item.name) + '</name>\n' +
+            '      <anchorfile>' + xml_escape(link) + '</anchorfile>\n' +
+            '      <anchor></anchor>\n' +
+            '      <arglist>(T... args)</arglist>\n' +
+            '    </member>\n')
+    elif item.kind == ItemKind.CLASS:
+        out_f.write(
+            '    <class kind="class">' + xml_escape(item.full_name) +
+            '</class>\n')
+    elif item.kind == ItemKind.NAMESPACE:
+        out_f.write(
+            '    <namespace>' + xml_escape(item.full_name) +
+            '</namespace>\n')
 
 
 def print_map_item(out_f, link_map, curr_item):
@@ -165,6 +169,9 @@ def print_map(out_f, link_map, ns_map):
     for item in sorted(ns_map.members.values()):
         if item.kind in [ItemKind.NAMESPACE, ItemKind.CLASS]:
             print_map_item(out_f, link_map, item)
+        elif item.kind in [ItemKind.FUNCTION, ItemKind.VARIABLE]:
+            # Members in the global namespace
+            print_member(out_f, item, item.link)
         else:
             print("WARN: " + item.full_name + " ignored")
 
