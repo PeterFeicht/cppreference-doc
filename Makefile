@@ -67,7 +67,10 @@ DISTFILES= \
 		preprocess_qch.py           \
 		test.sh                     \
 		xml_utils.py                \
+		requirements.txt            \
+		requirements-ci.txt         \
 		Makefile                    \
+		LICENSE                     \
 		README.md
 
 CLEANFILES= \
@@ -92,26 +95,29 @@ dist: clean
 	tar c$(TAR_OPTION)f "cppreference-doc-$(VERSION).tar.$(TAR_FORMAT)" "cppreference-doc-$(VERSION)"
 	rm -rf "cppreference-doc-$(VERSION)"
 
-install: all
-	# install the HTML book
+install: install_html install_qch install_devhelp install_doxygen
+
+install_html: doc_html
 	pushd "output/reference" > /dev/null; \
 	find . -type f \
 		-exec install -DT -m 644 '{}' "$(DESTDIR)$(docdir)/html/{}" \; ; \
 	popd > /dev/null
 
-	# install the devhelp documentation
+install_devhelp: doc_devhelp
 	install -DT -m 644 "output/cppreference-doc-en-c.devhelp2" \
 		"$(DESTDIR)$(bookdir)/cppreference-doc-en-c/cppreference-doc-en-c.devhelp2"
 	install -DT -m 644 "output/cppreference-doc-en-cpp.devhelp2" \
 		"$(DESTDIR)$(bookdir)/cppreference-doc-en-cpp/cppreference-doc-en-cpp.devhelp2"
+
+install_qch: doc_qch
+	install -DT -m 644 "output/cppreference-doc-en-cpp.qch" \
+		"$(DESTDIR)$(docdir)/qch/cppreference-doc-en-cpp.qch"
+
+install_doxygen: doc_doxygen
 	install -DT -m 644 "output/cppreference-doxygen-local.tag.xml" \
 		"$(DESTDIR)$(bookdir)/cppreference-doxygen-local.tag.xml"
 	install -DT -m 644 "output/cppreference-doxygen-web.tag.xml" \
 		"$(DESTDIR)$(bookdir)/cppreference-doxygen-web.tag.xml"
-
-	# install the .qch (Qt Help) documentation
-	install -DT -m 644 "output/cppreference-doc-en-cpp.qch" \
-		"$(DESTDIR)$(docdir)/qch/cppreference-doc-en-cpp.qch"
 
 uninstall:
 	rm -rf "$(DESTDIR)$(docdir)"
