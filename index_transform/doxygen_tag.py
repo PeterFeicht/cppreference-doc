@@ -19,6 +19,7 @@
 '''
 
 from functools import total_ordering
+import re
 
 from index_transform.common import IndexTransform
 from xml_utils import xml_escape
@@ -49,8 +50,16 @@ class Item:
         return self.full_name < other.full_name
 
 
+def split_full_name(full_name):
+    if m := re.match(r"([^(]+)(\([^)]+\))", full_name):
+        names = m.group(1).split('::')
+        names[len(names)-1] += m.group(2)
+        return names
+    return full_name.split('::')
+
+
 def add_to_map(ns_map, full_name, full_link, item_kind):
-    names = full_name.split('::')
+    names = split_full_name(full_name)
     parsed_names = []
     last_name = names.pop()  # i.e. unqualified name
     curr_item = ns_map
