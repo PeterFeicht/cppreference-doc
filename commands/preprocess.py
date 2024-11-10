@@ -350,7 +350,7 @@ def remove_fileinfo(html):
 
 # make custom footer
 def add_footer(html, root, fn):
-    footer = html.xpath('//*[@id=\'footer\']')[0]
+    footer = html.xpath("//*[@id='footer']")[0]
     for child in footer.getchildren():
         id = child.get('id')
         if id == 'cpp-navigation':
