@@ -1,8 +1,9 @@
 Information
 -----------
 
-This is source package for Cppreference C++ standard library reference
-documentation available at <http://en.cppreference.com>.
+This is the source package used to build the offline archive for the
+Cppreference C++ standard library reference documentation available at
+<http://en.cppreference.com>.
 
 If there is no 'reference/' subdirectory in this package, the actual
 documentation is not present here and must be obtained separately in order to
@@ -55,10 +56,10 @@ About this fork
 
 I made this fork mainly because the last official version of the offline package
 was rather old and much had changed with new C++ versions. Now I try to update
-roughly once a month.
+more frequently.
 
 Additional changes from upstream are:
 
  * Better layout by centering the content on the page.
  * Keeping links between the C and C++ parts of the documentation.
- * Keep a footer with a link to the online version of each page.
+ * Keeping a footer with a link to the online version of each page.
