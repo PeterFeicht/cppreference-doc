@@ -258,7 +258,7 @@ class TestPreprocessHtml(unittest.TestCase):
         self.testdata = os.path.join(os.path.dirname(__file__),
                                      'preprocess_data')
         infile = os.path.join(self.testdata, "fabs.html")
-        self.parser = etree.HTMLParser()
+        self.parser = etree.HTMLParser(encoding='utf-8')
         self.html = etree.parse(infile, self.parser)
 
     # Check whether the HTML matches the contents of the specified test data

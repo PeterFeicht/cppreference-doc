@@ -46,14 +46,14 @@ def main():
 
     for path in paths:
         print('Processing {0}'.format(path))
-        with open(path, 'r') as file:
+        with open(path, 'r', encoding='utf-8') as file:
             text = file.read()
 
         # TODO user proper XML parser, not this hack
         text = re.sub('<link rel="selenium.base" href="(.*)" />',
                       '<link rel="selenium.base" href="' + args.url + '" />', text)
 
-        with open(path, 'w') as file:
+        with open(path, 'w', encoding='utf-8') as file:
             file.write(text)
 
 if __name__ == '__main__':

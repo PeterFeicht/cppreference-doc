@@ -71,7 +71,7 @@ def sync_single_page(page, direction, dest_root):
     if direction == SYNC_DIRECTION_UPLOAD:
         if not os.path.exists(dest_path):
             return
-        with open(dest_path, 'r') as file:
+        with open(dest_path, 'r', encoding='utf-8') as file:
             new_text = file.read()
         if fix_whitespace(text) != fix_whitespace(new_text):
             page.put(new_text, 'sync with git')
@@ -82,7 +82,7 @@ def sync_single_page(page, direction, dest_root):
         if not os.path.exists(dest_dir):
             os.makedirs(dest_dir)
 
-        with open(dest_path, 'w') as file:
+        with open(dest_path, 'w', encoding='utf-8') as file:
             file.write(fix_whitespace(text))
         print('Downloaded {0}'.format(dest_path))
 

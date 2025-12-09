@@ -582,7 +582,7 @@ def main():
         # i+=1
 
         root = e.parse(os.path.join(args.reference, fn),
-                       parser=html.HTMLParser())
+                       parser=html.HTMLParser(encoding='utf-8'))
 
         for ident in idents:
 
