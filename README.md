@@ -32,7 +32,13 @@ documentation formats are currently supported:
  `make install` installs the documentation into proper locations.
 
  3) QT Help documentation format (.qch). Can be generated using `make doc_qch`.
- `make install` installs the documentation into proper locations.
+ `make install` installs the documentation into proper locations. The pages
+ keep the site's own markup and stylesheet, which the help viewers that read
+ the archive -- Qt Assistant and Qt Creator, both of which render with
+ litehtml -- lay out much as a browser does. A dark stylesheet is shipped
+ beside the light one, and either viewer serves it when its own theme is
+ dark. 'commands/qch_css.py' builds both; 'qch-viewer.css' and 'qch-dark.css'
+ are the parts written by hand.
 
 Simply running `make all` will generate documentation in all three formats.
 
@@ -43,7 +49,8 @@ Dependencies
 ------------
 
 The package depends on 'wget' (>=1.15), 'python3', 'python3-lxml',
-and 'qhelpgenerator' for the generation of the documentation.
+'python3-cssutils' and 'qhelpgenerator' for the generation of the
+documentation.
 
 See also
 --------

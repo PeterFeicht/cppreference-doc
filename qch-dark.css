@@ -1,0 +1,45 @@
+/* The page colors of the dark scheme of the Qt Help (.qch) rendition.
+ *
+ * Everything cppreference's own stylesheet colors is mapped from the light
+ * scheme automatically; see "commands/qch_css.py".  What is left for this
+ * file is what the pages name no color for at all, and so take from the
+ * help viewer's default, which assumes a light page.
+ */
+
+html,
+body {
+    background-color: #262626;
+    color: #d0d0d0;
+}
+
+/* litehtml has no `:link` or `:visited`, so a link takes whatever the bare
+   `a` rule says; it is the only one worth restating. */
+a {
+    color: #6ab0f3;
+}
+
+/* The tabs of the navigation bar are shaped by a pair of images drawn as a
+   pale slash on nothing, which on a dark page is all one sees of them.  The
+   line under the bar is enough to read it by. */
+.t-navbar-sep,
+.t-navbar-sep:first-child {
+    background-image: none;
+}
+
+/* The figures are drawn for a page that is white: black strokes, black
+   lettering, and nothing of their own behind them.  Left on a dark page they
+   all but disappear.  A raster image can only be handed the background it
+   was drawn against. */
+img {
+    background-color: #ffffff;
+    padding: 4px;
+}
+
+/* A drawing does better than that: it is told which page it is on -- both
+   viewers put `class="dark"` on the root <svg> element for a dark theme --
+   and `commands/qch_svg.py` has given it a dark scheme to answer with,
+   ground and all.  The plate above would be painted over that ground and
+   under the marks, so keep it off these. */
+img[src$=".svg"] {
+    background-color: transparent;
+}

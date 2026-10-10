@@ -1,0 +1,53 @@
+/* What the Qt Help (.qch) rendition of the documentation needs on top of
+ * cppreference's own stylesheet.  The page is read in a help pane rather
+ * than a browser window, and is laid out by litehtml rather than by a
+ * browser.  "commands/qch_css.py" folds this file in after the site's own.
+ */
+
+/* The site lays the content out as a column of a fixed width centred in the
+   window.  A help pane is narrower than a window and is resized far more
+   often than one, so let the column fill it, up to a measure that still
+   reads well, and give it the margin the centring used to provide. */
+div#content {
+    margin: 0;
+    width: auto;
+    max-width: 64em;
+    padding: 0.4em 0.9em 2em 0.9em;
+}
+
+/* The site takes a fifth off its whole content, because it is written
+   against a browser's 16px default and wants to read at about 13px.  A
+   help pane starts from the font the reader chose for it, which is already
+   the size they want to read at, so taking the same fifth off leaves the
+   page small -- and drags the proportions below it, the `(since C++NN)`
+   markers and the inline code, smaller still.  Let the content sit at the
+   reader's size and let the compressed proportions work off that; see the
+   note on type sizes in "commands/qch_css.py". */
+#bodyContent {
+    font-size: 1em;
+}
+
+/* Nothing offline can act on these: the live-example buttons and the
+   compiler picker beside them talk to Coliru, and the revision selector is
+   a gadget the site drives from script. */
+.t-example-live-link,
+.coliru-btn,
+.coliru-select-compiler,
+.coliru-powered,
+.stdrev-select {
+    display: none;
+}
+
+/* litehtml has no `writing-mode`, so the column headings of the compiler
+   support tables -- which the site stands on end to keep each column no
+   wider than the version number under it -- come out lying across one
+   another.  Lay them out across and let them wrap; `preprocess_qch_html`
+   frees the height the row was reserving for them to stand in. */
+.t-vertical {
+    width: auto;
+    white-space: normal;
+}
+
+.t-vertical > div {
+    writing-mode: horizontal-tb;
+}

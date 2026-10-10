@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="client-nojs">
+<head>
+<title>std::basic_string - cppreference.com</title>
+<meta charset="UTF-8">
+<meta name="generator" content="MediaWiki 1.21.2">
+<link rel="shortcut icon" href="../../../favicon.ico">
+<meta name="ResourceLoaderDynamicStyles" content="">
+<!--[if lt IE 7]><style type="text/css">body{behavior:url("/mwiki/skins/cppreference2/csshover.min.htc")}</style><![endif]--><link rel="stylesheet" type="text/css" href="common/offline-simple.css">
+</head>
+<body class="mediawiki ltr sitedir-ltr ns-0 ns-subject page-cpp_string_basic_string skin-cppreference2 action-view cpp-navbar">
+        <!-- header -->
+        <!-- /header -->
+        <!-- content -->
+        <div id="cpp-content-base">
+            <div id="content">
+                <a id="top"></a>
+                <div id="mw-js-message" style="display:none;"></div>
+                                <!-- firstHeading -->
+                <h1 id="firstHeading" class="firstHeading">
+<span style="font-size: 0.8367em; line-height:130%">std::</span>basic_string</h1>
+                <!-- /firstHeading -->
+                <!-- bodyContent -->
+                <div id="bodyContent">
+                                        <!-- tagline -->
+                    <div id="siteSub">From cppreference.com</div>
+                    <!-- /tagline -->
+                                        <!-- subtitle -->
+                    <div id="contentSub"><span class="subpages">&lt; <a href="../../cpp.html" title="cpp">cpp</a>‎ | <a href="../string.html" title="cpp/string">string</a></span></div>
+                    <!-- /subtitle -->
+                                                            <!-- bodycontent -->
+                    <div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr">
+<div class="t-navbar" style="">
+<div class="t-navbar-sep"> </div>
+<div class="t-navbar-head"><a href="../../cpp.html" title="cpp"> C++</a></div>
+<div class="t-navbar-sep"> </div>
+<div class="t-navbar-head"><a href="../string.html" title="cpp/string"> Strings library</a></div>
+<div class="t-navbar-sep"> </div>
+<div class="t-navbar-head"><strong class="selflink"><tt>std::basic_string</tt></strong></div>
+<div class="t-navbar-sep"> </div>
+</div>
+<table class="t-dcl-begin"><tbody>
+<tr class="t-dsc-header">
+<td> <div>Defined in header <code><a href="../header/string.html" title="cpp/header/string">&lt;string&gt;</a></code>
+ </div>
+</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="t-dcl">
+<td> <div><span class="mw-geshi cpp source-cpp"><span class="kw1">template</span><span class="sy1">&lt;</span> <br>
+<p>    <span class="kw1">class</span> CharT, <br>
+    <span class="kw1">class</span> Traits <span class="sy1">=</span> <a href="char_traits.html"><span class="kw1258">std::<span class="me2">char_traits</span></span></a><span class="sy1">&lt;</span>CharT<span class="sy1">&gt;</span>, <br>
+    <span class="kw1">class</span> Allocator <span class="sy1">=</span> <a href="../memory/allocator.html"><span class="kw700">std::<span class="me2">allocator</span></span></a><span class="sy1">&lt;</span>CharT<span class="sy1">&gt;</span><br>
+</p>
+<span class="sy1">&gt;</span> <span class="kw1">class</span> basic_string<span class="sy4">;</span></span></div>
+</td>
+<td> (1) </td>
+<td class="t-dcl-nopad">  </td>
+</tr>
+<tr class="t-dcl t-since-cxx17">
+<td> <div><span class="mw-geshi cpp source-cpp"><span class="kw1">namespace</span> pmr <span class="br0">{</span><br>
+<p>    <span class="kw1">template</span> <span class="sy1">&lt;</span><span class="kw1">class</span> CharT, <span class="kw1">class</span> Traits <span class="sy1">=</span> <a href="char_traits.html"><span class="kw1258">std::<span class="me2">char_traits</span></span></a><span class="sy1">&lt;</span>CharT<span class="sy1">&gt;&gt;</span><br>
+    <span class="kw1">using</span> basic_string <span class="sy1">=</span> std<span class="sy4">::</span><span class="me2">basic_string</span><span class="sy1">&lt;</span> CharT, Traits,<br>
+                                            std<span class="sy4">::</span><span class="me2">polymorphic_allocator</span><span class="sy1">&lt;</span>CharT<span class="sy1">&gt;&gt;</span><br>
+</p>
+<span class="br0">}</span></span></div>
+</td>
+<td> (2) </td>
+<td> <span class="t-mark-rev t-since-cxx17">(since C++17)</span> </td>
+</tr>
+<tr class="t-dcl-sep">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>The class template <code>basic_string</code> stores and manipulates sequences of <a href="../language/types.html#Character_types" title="cpp/language/types"><tt><span class="t-c"><span class="mw-geshi cpp source-cpp"><span class="kw4">char</span></span></span></tt></a>-like objects, which are non-array objects of <a href="../concept/TrivialType.html" title="cpp/concept/TrivialType">trivial type</a>. The class is dependent neither on the character type nor on the nature of operations on that type. The definitions of the operations are supplied via the <code>Traits</code> template parameter - a specialization of <span class="t-lc"><a href="char_traits.html" title="cpp/string/char traits">std::char_traits</a></span> or a compatible traits class. <code>Traits::char_type</code> and <code>CharT</code> must name the same type; otherwise the behavior is undefined. 
+</p>
+ <table class="t-rev-begin">
+<tr class="t-rev t-since-cxx11">
+<td>
+<p>The elements of a <code>basic_string</code> are stored contiguously, that is, for a basic_string <code>s</code>, <span class="t-c"><span class="mw-geshi cpp source-cpp"><span class="sy3">&amp;</span><span class="sy2">*</span><span class="br0">(</span>s.<span class="me1">begin</span><span class="br0">(</span><span class="br0">)</span> <span class="sy2">+</span> n<span class="br0">)</span> <span class="sy1">==</span> <span class="sy3">&amp;</span><span class="sy2">*</span>s.<span class="me1">begin</span><span class="br0">(</span><span class="br0">)</span> <span class="sy2">+</span> n</span></span> for any n in <code>[0, s.size())</code>, or, equivalently, a pointer to <code>s[0]</code> can be passed to functions that expect a pointer to the first element of a <code>CharT[]</code> array.
+</p>
+</td>
+<td><span class="t-mark-rev t-since-cxx11">(since C++11)</span></td>
+</tr>
+</table>
+<p><code>std::basic_string</code> satisfies the requirements of <a href="../concept/AllocatorAwareContainer.html" title="cpp/concept/AllocatorAwareContainer"><code>AllocatorAwareContainer</code></a>, <a href="../concept/SequenceContainer.html" title="cpp/concept/SequenceContainer"><code>SequenceContainer</code></a> <span class="t-rev-inl t-since-cxx17"><span>and <a href="../concept/ContiguousContainer.html" title="cpp/concept/ContiguousContainer"><code>ContiguousContainer</code></a></span> <span><span class="t-mark-rev t-since-cxx17">(since C++17)</span></span></span>
+</p>
+<p>Several typedefs for common character types are provided:
+</p>
+<table class="t-dsc-begin">
+
+<tr class="t-dsc-header">
+<td colspan="2"> <div>Defined in header <code>&lt;string&gt;</code> </div>
+</td>
+</tr>
+
+<tr class="t-dsc-hitem">
+<td>  Type
+</td>
+<td>  Definition
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <span class="t-lc"><strong class="selflink">std::string</strong></span>
+</td>
+<td>  <span class="t-c"><span class="mw-geshi cpp source-cpp">std<span class="sy4">::</span><span class="me2">basic_string</span><span class="sy1">&lt;</span><span class="kw4">char</span><span class="sy1">&gt;</span></span></span>
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <span class="t-lc"><strong class="selflink">std::wstring</strong></span>
+</td>
+<td>  <span class="t-c"><span class="mw-geshi cpp source-cpp">std<span class="sy4">::</span><span class="me2">basic_string</span><span class="sy1">&lt;</span><span class="kw4">wchar_t</span><span class="sy1">&gt;</span></span></span>
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <span class="t-lc"><strong class="selflink">std::u16string</strong></span> <span class="t-mark-rev t-since-cxx11">(C++11)</span>
+</td>
+<td>  <span class="t-c"><span class="mw-geshi cpp source-cpp">std<span class="sy4">::</span><span class="me2">basic_string</span><span class="sy1">&lt;</span><span class="kw4">char16_t</span><span class="sy1">&gt;</span></span></span>
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <span class="t-lc"><strong class="selflink">std::u32string</strong></span> <span class="t-mark-rev t-since-cxx11">(C++11)</span>
+</td>
+<td>  <span class="t-c"><span class="mw-geshi cpp source-cpp">std<span class="sy4">::</span><span class="me2">basic_string</span><span class="sy1">&lt;</span><span class="kw4">char32_t</span><span class="sy1">&gt;</span></span></span>
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <span class="t-lc"><strong class="selflink">std::pmr::string</strong></span> <span class="t-mark-rev t-since-cxx17">(C++17)</span>
+</td>
+<td>  <span class="t-c"><span class="mw-geshi cpp source-cpp">std<span class="sy4">::</span><span class="me2">pmr</span><span class="sy4">::</span><span class="me2">basic_string</span><span class="sy1">&lt;</span><span class="kw4">char</span><span class="sy1">&gt;</span></span></span>
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <span class="t-lc"><strong class="selflink">std::pmr::wstring</strong></span> <span class="t-mark-rev t-since-cxx17">(C++17)</span>
+</td>
+<td>  <span class="t-c"><span class="mw-geshi cpp source-cpp">std<span class="sy4">::</span><span class="me2">pmr</span><span class="sy4">::</span><span class="me2">basic_string</span><span class="sy1">&lt;</span><span class="kw4">wchar_t</span><span class="sy1">&gt;</span></span></span>
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <span class="t-lc"><strong class="selflink">std::pmr::u16string</strong></span> <span class="t-mark-rev t-since-cxx17">(C++17)</span>
+</td>
+<td>  <span class="t-c"><span class="mw-geshi cpp source-cpp">std<span class="sy4">::</span><span class="me2">pmr</span><span class="sy4">::</span><span class="me2">basic_string</span><span class="sy1">&lt;</span><span class="kw4">char16_t</span><span class="sy1">&gt;</span></span></span>
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <span class="t-lc"><strong class="selflink">std::pmr::u32string</strong></span> <span class="t-mark-rev t-since-cxx17">(C++17)</span>
+</td>
+<td>  <span class="t-c"><span class="mw-geshi cpp source-cpp">std<span class="sy4">::</span><span class="me2">pmr</span><span class="sy4">::</span><span class="me2">basic_string</span><span class="sy1">&lt;</span><span class="kw4">char32_t</span><span class="sy1">&gt;</span></span></span>
+</td>
+</tr>
+
+</table>
+<h3><span class="mw-headline" id="Template_parameters">Template parameters</span></h3>
+<table class="t-par-begin">
+
+
+<tr class="t-par">
+<td>  CharT
+</td>
+<td> -
+</td>
+<td>  character type
+</td>
+</tr>
+<tr class="t-par">
+<td>  Traits
+</td>
+<td> -
+</td>
+<td>  traits class specifying the operations on the character type
+</td>
+</tr>
+<tr class="t-par">
+<td>  Allocator
+</td>
+<td> -
+</td>
+<td>  <a href="../concept/Allocator.html" title="cpp/concept/Allocator"><code>Allocator</code></a> type used to allocate internal storage
+</td>
+</tr>
+</table>
+<h3><span class="mw-headline" id="Member_types">Member types</span></h3>
+<table class="t-dsc-begin">
+
+<tr class="t-dsc-hitem">
+<td>  Member type
+</td>
+<td>  Definition
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <code>traits_type</code>
+</td>
+<td>  <code>Traits</code>
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <code>value_type</code>
+</td>
+<td>  <code>CharT</code>
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <code>allocator_type</code>
+</td>
+<td>  <code>Allocator</code> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>size_type</code>
+</td>
+<td>   <table class="t-rev-begin t-rev-begin-noborder">
+<tr class="t-rev t-until-cxx11">
+<td><code>Allocator::size_type</code></td>
+<td><span class="t-mark-rev t-until-cxx11">(until C++11)</span></td>
+</tr>
+<tr class="t-rev t-since-cxx11">
+<td><span class="t-c"><span class="mw-geshi cpp source-cpp"><a href="../memory/allocator_traits.html"><span class="kw701">std::<span class="me2">allocator_traits</span></span></a><span class="sy1">&lt;</span>Allocator<span class="sy1">&gt;</span><span class="sy4">::</span><span class="me2">size_type</span></span></span></td>
+<td><span class="t-mark-rev t-since-cxx11">(since C++11)</span></td>
+</tr>
+</table> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>difference_type</code>
+</td>
+<td>   <table class="t-rev-begin t-rev-begin-noborder">
+<tr class="t-rev t-until-cxx11">
+<td><code>Allocator::difference_type</code></td>
+<td><span class="t-mark-rev t-until-cxx11">(until C++11)</span></td>
+</tr>
+<tr class="t-rev t-since-cxx11">
+<td><span class="t-c"><span class="mw-geshi cpp source-cpp"><a href="../memory/allocator_traits.html"><span class="kw701">std::<span class="me2">allocator_traits</span></span></a><span class="sy1">&lt;</span>Allocator<span class="sy1">&gt;</span><span class="sy4">::</span><span class="me2">difference_type</span></span></span></td>
+<td><span class="t-mark-rev t-since-cxx11">(since C++11)</span></td>
+</tr>
+</table> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>reference</code>
+</td>
+<td>   <table class="t-rev-begin t-rev-begin-noborder">
+<tr class="t-rev t-until-cxx11">
+<td><code>Allocator::reference</code></td>
+<td><span class="t-mark-rev t-until-cxx11">(until C++11)</span></td>
+</tr>
+<tr class="t-rev t-since-cxx11">
+<td><code>value_type&amp;</code></td>
+<td><span class="t-mark-rev t-since-cxx11">(since C++11)</span></td>
+</tr>
+</table> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>const_reference</code>
+</td>
+<td>   <table class="t-rev-begin t-rev-begin-noborder">
+<tr class="t-rev t-until-cxx11">
+<td><code>Allocator::const_reference</code></td>
+<td><span class="t-mark-rev t-until-cxx11">(until C++11)</span></td>
+</tr>
+<tr class="t-rev t-since-cxx11">
+<td><code>const value_type&amp;</code></td>
+<td><span class="t-mark-rev t-since-cxx11">(since C++11)</span></td>
+</tr>
+</table> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>pointer</code>
+</td>
+<td>   <table class="t-rev-begin t-rev-begin-noborder">
+<tr class="t-rev t-until-cxx11">
+<td><code>Allocator::pointer</code></td>
+<td><span class="t-mark-rev t-until-cxx11">(until C++11)</span></td>
+</tr>
+<tr class="t-rev t-since-cxx11">
+<td><span class="t-c"><span class="mw-geshi cpp source-cpp"><a href="../memory/allocator_traits.html"><span class="kw701">std::<span class="me2">allocator_traits</span></span></a><span class="sy1">&lt;</span>Allocator<span class="sy1">&gt;</span><span class="sy4">::</span><span class="me2">pointer</span></span></span></td>
+<td><span class="t-mark-rev t-since-cxx11">(since C++11)</span></td>
+</tr>
+</table> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>const_pointer</code>
+</td>
+<td>   <table class="t-rev-begin t-rev-begin-noborder">
+<tr class="t-rev t-until-cxx11">
+<td><code>Allocator::const_pointer</code></td>
+<td><span class="t-mark-rev t-until-cxx11">(until C++11)</span></td>
+</tr>
+<tr class="t-rev t-since-cxx11">
+<td><span class="t-c"><span class="mw-geshi cpp source-cpp"><a href="../memory/allocator_traits.html"><span class="kw701">std::<span class="me2">allocator_traits</span></span></a><span class="sy1">&lt;</span>Allocator<span class="sy1">&gt;</span><span class="sy4">::</span><span class="me2">const_pointer</span></span></span></td>
+<td><span class="t-mark-rev t-since-cxx11">(since C++11)</span></td>
+</tr>
+</table> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>iterator</code>
+</td>
+<td>  <a href="../concept/RandomAccessIterator.html" title="cpp/concept/RandomAccessIterator"><code>RandomAccessIterator</code></a> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>const_iterator</code>
+</td>
+<td>  Constant <a href="../concept/RandomAccessIterator.html" title="cpp/concept/RandomAccessIterator"><code>RandomAccessIterator</code></a> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>reverse_iterator</code>
+</td>
+<td>  <span class="t-c"><span class="mw-geshi cpp source-cpp"><a href="../iterator/reverse_iterator.html"><span class="kw658">std::<span class="me2">reverse_iterator</span></span></a><span class="sy1">&lt;</span>iterator<span class="sy1">&gt;</span></span></span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>const_reverse_iterator</code>
+</td>
+<td>  <span class="t-c"><span class="mw-geshi cpp source-cpp"><a href="../iterator/reverse_iterator.html"><span class="kw658">std::<span class="me2">reverse_iterator</span></span></a><span class="sy1">&lt;</span>const_iterator<span class="sy1">&gt;</span></span></span> </td>
+</tr>
+</table>
+<h3><span class="mw-headline" id="Member_functions">Member functions</span></h3>
+<table class="t-dsc-begin">
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div t-dsc-member-nobold-div"><div><a href="basic_string/basic_string.html" title="cpp/string/basic string/basic string"> <span class="t-lines"><span>(constructor)</span></span></a></div></div>
+</td>
+<td>  constructs a <code>basic_string</code> <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div t-dsc-member-nobold-div"><div><span class="t-lines"><span>(destructor)</span></span></div></div>
+</td>
+<td>  destroys the string, deallocating internal storage if used <br> <span class="t-mark">(public member function)</span>
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/operator%3D.html" title="cpp/string/basic string/operator="> <span class="t-lines"><span>operator=</span></span></a></div></div>
+</td>
+<td>   assigns values to the string  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/assign.html" title="cpp/string/basic string/assign"> <span class="t-lines"><span>assign</span></span></a></div></div>
+</td>
+<td>    assign characters to a string <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/get_allocator.html" title="cpp/string/basic string/get allocator"> <span class="t-lines"><span>get_allocator</span></span></a></div></div>
+</td>
+<td>   returns the associated allocator  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h5> <span class="mw-headline" id="Element_access">  Element access </span>
+</h5>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/at.html" title="cpp/string/basic string/at"> <span class="t-lines"><span>at</span></span></a></div></div>
+</td>
+<td>    accesses the specified character with bounds checking <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/operator_at.html" title="cpp/string/basic string/operator at"> <span class="t-lines"><span>operator[]</span></span></a></div></div>
+</td>
+<td>   accesses the specified character <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/front.html" title="cpp/string/basic string/front"> <span class="t-lines"><span>front</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   accesses the first character <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/back.html" title="cpp/string/basic string/back"> <span class="t-lines"><span>back</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   accesses the last character <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/data.html" title="cpp/string/basic string/data"> <span class="t-lines"><span>data</span></span></a></div></div>
+</td>
+<td>   returns a pointer to the first character of a string <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/c_str.html" title="cpp/string/basic string/c str"> <span class="t-lines"><span>c_str</span></span></a></div></div>
+</td>
+<td>   returns a non-modifiable standard C character array version of the string <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/operator_basic_string_view.html" title="cpp/string/basic string/operator basic string view"> <span class="t-lines"><span>operator basic_string_view</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx17">(C++17)</span></span></span></div>
+</div>
+</td>
+<td>   returns a non-modifiable string_view  into the entire string <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h5> <span class="mw-headline" id="Iterators">  Iterators </span>
+</h5>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/begin.html" title="cpp/string/basic string/begin"> <span class="t-lines"><span>begin</span><span>cbegin</span></span></a></div>
+<div><span class="t-lines"><span></span><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   returns an iterator to the beginning  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/end.html" title="cpp/string/basic string/end"> <span class="t-lines"><span>end </span><span>cend</span></span></a></div>
+<div><span class="t-lines"><span></span><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   returns an iterator to the end  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/rbegin.html" title="cpp/string/basic string/rbegin"> <span class="t-lines"><span>rbegin</span><span> crbegin</span></span></a></div>
+<div><span class="t-lines"><span></span><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   returns a reverse iterator to the beginning  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/rend.html" title="cpp/string/basic string/rend"> <span class="t-lines"><span>rend</span><span> crend</span></span></a></div>
+<div><span class="t-lines"><span></span><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   returns a reverse iterator to the end  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h5> <span class="mw-headline" id="Capacity">  Capacity </span>
+</h5>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/empty.html" title="cpp/string/basic string/empty"> <span class="t-lines"><span>empty</span></span></a></div></div>
+</td>
+<td>   checks whether the string is empty  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/size.html" title="cpp/string/basic string/size"> <span class="t-lines"><span>size</span><span>length</span></span></a></div></div>
+</td>
+<td>   returns the number of characters  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/max_size.html" title="cpp/string/basic string/max size"> <span class="t-lines"><span>max_size</span></span></a></div></div>
+</td>
+<td>   returns the maximum number of characters  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/reserve.html" title="cpp/string/basic string/reserve"> <span class="t-lines"><span>reserve</span></span></a></div></div>
+</td>
+<td>   reserves storage  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/capacity.html" title="cpp/string/basic string/capacity"> <span class="t-lines"><span>capacity</span></span></a></div></div>
+</td>
+<td>   returns the number of characters that can be held in currently allocated storage  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/shrink_to_fit.html" title="cpp/string/basic string/shrink to fit"> <span class="t-lines"><span>shrink_to_fit</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   reduces memory usage by freeing unused memory  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h5> <span class="mw-headline" id="Operations">  Operations </span>
+</h5>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/clear.html" title="cpp/string/basic string/clear"> <span class="t-lines"><span>clear</span></span></a></div></div>
+</td>
+<td>   clears the contents <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/insert.html" title="cpp/string/basic string/insert"> <span class="t-lines"><span>insert</span></span></a></div></div>
+</td>
+<td>   inserts characters <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/erase.html" title="cpp/string/basic string/erase"> <span class="t-lines"><span>erase</span></span></a></div></div>
+</td>
+<td>   removes characters  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/push_back.html" title="cpp/string/basic string/push back"> <span class="t-lines"><span>push_back</span></span></a></div></div>
+</td>
+<td>   appends a character to the end <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/pop_back.html" title="cpp/string/basic string/pop back"> <span class="t-lines"><span>pop_back</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   removes the last character  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/append.html" title="cpp/string/basic string/append"> <span class="t-lines"><span>append</span></span></a></div></div>
+</td>
+<td>   appends characters to the end <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/operator%2B%3D.html" title="cpp/string/basic string/operator+="> <span class="t-lines"><span>operator+=</span></span></a></div></div>
+</td>
+<td>   appends characters to the end <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/compare.html" title="cpp/string/basic string/compare"> <span class="t-lines"><span>compare</span></span></a></div></div>
+</td>
+<td>   compares two strings <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/starts_with.html" title="cpp/string/basic string/starts with"> <span class="t-lines"><span>starts_with</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx20">(C++20)</span></span></span></div>
+</div>
+</td>
+<td>   checks if the string starts with the given prefix  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/ends_with.html" title="cpp/string/basic string/ends with"> <span class="t-lines"><span>ends_with</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx20">(C++20)</span></span></span></div>
+</div>
+</td>
+<td>   checks if the string ends with the given suffix  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/replace.html" title="cpp/string/basic string/replace"> <span class="t-lines"><span>replace</span></span></a></div></div>
+</td>
+<td>   replaces specified portion of a string <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/substr.html" title="cpp/string/basic string/substr"> <span class="t-lines"><span>substr</span></span></a></div></div>
+</td>
+<td>   returns a substring <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/copy.html" title="cpp/string/basic string/copy"> <span class="t-lines"><span>copy</span></span></a></div></div>
+</td>
+<td>   copies characters <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/resize.html" title="cpp/string/basic string/resize"> <span class="t-lines"><span>resize</span></span></a></div></div>
+</td>
+<td>   changes the number of characters stored  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/swap.html" title="cpp/string/basic string/swap"> <span class="t-lines"><span>swap</span></span></a></div></div>
+</td>
+<td>   swaps the contents  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h5> <span class="mw-headline" id="Search">  Search </span>
+</h5>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/find.html" title="cpp/string/basic string/find"> <span class="t-lines"><span>find</span></span></a></div></div>
+</td>
+<td>   find characters in the string <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/rfind.html" title="cpp/string/basic string/rfind"> <span class="t-lines"><span>rfind</span></span></a></div></div>
+</td>
+<td>   find the last occurrence of a substring <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/find_first_of.html" title="cpp/string/basic string/find first of"> <span class="t-lines"><span>find_first_of</span></span></a></div></div>
+</td>
+<td>   find first occurrence of characters <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/find_first_not_of.html" title="cpp/string/basic string/find first not of"> <span class="t-lines"><span>find_first_not_of</span></span></a></div></div>
+</td>
+<td>   find first absence of characters <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/find_last_of.html" title="cpp/string/basic string/find last of"> <span class="t-lines"><span>find_last_of</span></span></a></div></div>
+</td>
+<td>   find last occurrence of characters <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/find_last_not_of.html" title="cpp/string/basic string/find last not of"> <span class="t-lines"><span>find_last_not_of</span></span></a></div></div>
+</td>
+<td>   find last absence of characters <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h3> <span class="mw-headline" id="Constants"> Constants</span>
+</h3>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/npos.html" title="cpp/string/basic string/npos"> <span class="t-lines"><span>npos</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-cmark">[static]</span></span></span></div>
+</div>
+</td>
+<td>   special value. The exact meaning depends on the context <br> <span class="t-mark">(public static member constant)</span> </td>
+</tr>
+</table>
+<h3><span class="mw-headline" id="Non-member_functions">Non-member functions</span></h3>
+<table class="t-dsc-begin">
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/operator%2B.html" title="cpp/string/basic string/operator+"> <span class="t-lines"><span>operator+</span></span></a></div></div>
+</td>
+<td>   concatenates two strings or a string and a char  <br> <span class="t-mark">(function template)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/operator_cmp.html" title="cpp/string/basic string/operator cmp"> <span class="t-lines"><span>operator==</span><span>operator!=</span><span>operator&lt;</span><span>operator&gt;</span><span>operator&lt;=</span><span>operator&gt;=</span></span></a></div></div>
+</td>
+<td>   lexicographically compares two strings  <br> <span class="t-mark">(function template)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/swap2.html" title="cpp/string/basic string/swap2"> <span class="t-lines"><span>std::swap<span class="t-dsc-small">(std::basic_string)</span></span></span></a></div></div>
+</td>
+<td>   specializes the <span class="t-lc"><a href="../algorithm/swap.html" title="cpp/algorithm/swap">std::swap</a></span> algorithm <br> <span class="t-mark">(function template)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h5> <span class="mw-headline" id="Input.2Foutput">  Input/output </span>
+</h5>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/operator_ltltgtgt.html" title="cpp/string/basic string/operator ltltgtgt"> <span class="t-lines"><span>operator&lt;&lt;</span><span>operator&gt;&gt;</span></span></a></div></div>
+</td>
+<td>   performs stream input and output on strings  <br> <span class="t-mark">(function template)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="basic_string/getline.html" title="cpp/string/basic string/getline"> <span class="t-lines"><span>getline</span></span></a></div></div>
+</td>
+<td>   read data from an I/O stream into a string <br> <span class="t-mark">(function template)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h5> <span class="mw-headline" id="Numeric_conversions">  Numeric conversions </span>
+</h5>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/stol.html" title="cpp/string/basic string/stol"> <span class="t-lines"><span>stoi</span><span>stol</span><span>stoll</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   converts a string to a signed integer  <br> <span class="t-mark">(function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/stoul.html" title="cpp/string/basic string/stoul"> <span class="t-lines"><span>stoul</span><span>stoull</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   converts a string to an unsigned integer  <br> <span class="t-mark">(function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/stof.html" title="cpp/string/basic string/stof"> <span class="t-lines"><span>stof</span><span>stod</span><span>stold</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   converts a string to a floating point value  <br> <span class="t-mark">(function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/to_string.html" title="cpp/string/basic string/to string"> <span class="t-lines"><span>to_string</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   converts an integral or floating point value to <code>string</code>  <br> <span class="t-mark">(function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/to_wstring.html" title="cpp/string/basic string/to wstring"> <span class="t-lines"><span>to_wstring</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   converts an integral or floating point value to <code>wstring</code>  <br> <span class="t-mark">(function)</span> </td>
+</tr>
+</table>
+<h3><span class="mw-headline" id="Literals">Literals</span></h3>
+<table class="t-dsc-begin">
+
+<tr class="t-dsc-header">
+<td colspan="2"> <div>Defined in inline namespace <code>std::literals::string_literals</code> </div>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/operator_q__q_s.html" title='cpp/string/basic string/operator""s'> <span class="t-lines"><span>operator""s</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx14">(C++14)</span></span></span></div>
+</div>
+</td>
+<td>   Converts a character array literal to <code>basic_string</code>  <br> <span class="t-mark">(function)</span> </td>
+</tr>
+</table>
+<h3><span class="mw-headline" id="Helper_classes">Helper classes</span></h3>
+<table class="t-dsc-begin">
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="basic_string/hash.html" title="cpp/string/basic string/hash"> <span class="t-lines"><span>std::hash<span class="t-dsc-small">&lt;std::string&gt;</span></span><span>std::hash<span class="t-dsc-small">&lt;std::u16string&gt;</span></span><span>std::hash<span class="t-dsc-small">&lt;std::u32string&gt;</span></span><span>std::hash<span class="t-dsc-small">&lt;std::wstring&gt;</span></span><span>std::hash<span class="t-dsc-small">&lt;std::pmr::string&gt;</span></span><span>std::hash<span class="t-dsc-small">&lt;std::pmr::u16string&gt;</span></span><span>std::hash<span class="t-dsc-small">&lt;std::pmr::u32string&gt;</span></span><span>std::hash<span class="t-dsc-small">&lt;std::pmr::wstring&gt;</span></span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span><span><span class="t-mark-rev t-since-cxx20">(C++20)</span></span><span><span class="t-mark-rev t-since-cxx20">(C++20)</span></span><span><span class="t-mark-rev t-since-cxx20">(C++20)</span></span><span><span class="t-mark-rev t-since-cxx20">(C++20)</span></span></span></div>
+</div>
+</td>
+<td>   hash support for strings  <br> <span class="t-mark">(class template specialization)</span> </td>
+</tr>
+</table>
+<h3><span class="mw-headline" id="Deduction_guides.28since_C.2B.2B17.29"><a href="basic_string/deduction_guides.html" title="cpp/string/basic string/deduction guides">Deduction guides</a><span class="t-mark-rev t-since-cxx17">(since C++17)</span></span></h3>
+
+<!-- 
+NewPP limit report
+Preprocessor visited node count: 14704/1000000
+Preprocessor generated node count: 17666/1000000
+Post‐expand include size: 482635/2097152 bytes
+Template argument size: 100948/2097152 bytes
+Highest expansion depth: 22/40
+Expensive parser function count: 0/100
+-->
+
+<!-- Saved in parser cache with key mwiki1-mwiki_en_:pcache:idhash:1389-0!*!0!!en!*!* and timestamp 20180120030840 -->
+</div>                    <!-- /bodycontent -->
+                                        <!-- printfooter -->
+                    <div class="printfooter">
+                    Retrieved from "<a href="http://en.cppreference.com/mwiki/index.php?title=cpp/string/basic_string&amp;oldid=97050">http://en.cppreference.com/mwiki/index.php?title=cpp/string/basic_string&amp;oldid=97050</a>"                    </div>
+                    <!-- /printfooter -->
+                                                            <!-- catlinks -->
+                    <div id="catlinks" class="catlinks catlinks-allhidden"><div id="mw-hidden-catlinks" class="mw-hidden-catlinks mw-hidden-cats-hidden">Hidden category: <ul><li><a href="http://en.cppreference.com/w/Category:Pages_with_unreviewed_LWG_DR_marker" title="Category:Pages with unreviewed LWG DR marker">Pages with unreviewed LWG DR marker</a></li></ul>
+</div></div>                    <!-- /catlinks -->
+                                                            <div class="visualClear"></div>
+                    <!-- debughtml -->
+                                        <!-- /debughtml -->
+                </div>
+                <!-- /bodyContent -->
+            </div>
+        </div>
+        <!-- /content -->
+        <!-- footer -->
+        <!-- /footer -->
+        
+
+
+
+<!-- Served in 2.505 secs. -->
+	</body>
+<!-- Cached 20180120030842 -->
+</html>

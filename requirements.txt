@@ -1,2 +1,2 @@
-premailer==3.7.0
+cssutils==2.15.0
 lxml==5.3.0
