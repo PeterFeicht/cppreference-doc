@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="client-nojs">
+<head>
+<title>std::multiset - cppreference.com</title>
+<meta charset="UTF-8">
+<meta name="generator" content="MediaWiki 1.21.2">
+<link rel="shortcut icon" href="../../../favicon.ico">
+<meta name="ResourceLoaderDynamicStyles" content="">
+<!--[if lt IE 7]><style type="text/css">body{behavior:url("/mwiki/skins/cppreference2/csshover.min.htc")}</style><![endif]--><link rel="stylesheet" type="text/css" href="common/offline-simple.css">
+</head>
+<body class="mediawiki ltr sitedir-ltr ns-0 ns-subject page-cpp_container_multiset skin-cppreference2 action-view cpp-navbar">
+        <!-- header -->
+        <!-- /header -->
+        <!-- content -->
+        <div id="cpp-content-base">
+            <div id="content">
+                <a id="top"></a>
+                <div id="mw-js-message" style="display:none;"></div>
+                                <!-- firstHeading -->
+                <h1 id="firstHeading" class="firstHeading">
+<span style="font-size: 0.8367em; line-height:130%">std::</span>multiset</h1>
+                <!-- /firstHeading -->
+                <!-- bodyContent -->
+                <div id="bodyContent">
+                                        <!-- tagline -->
+                    <div id="siteSub">From cppreference.com</div>
+                    <!-- /tagline -->
+                                        <!-- subtitle -->
+                    <div id="contentSub"><span class="subpages">&lt; <a href="../../cpp.html" title="cpp">cpp</a>‎ | <a href="../container.html" title="cpp/container">container</a></span></div>
+                    <!-- /subtitle -->
+                                                            <!-- bodycontent -->
+                    <div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr">
+<div class="t-navbar" style="">
+<div class="t-navbar-sep"> </div>
+<div class="t-navbar-head"><a href="../../cpp.html" title="cpp"> C++</a></div>
+<div class="t-navbar-sep"> </div>
+<div class="t-navbar-head"><a href="../container.html" title="cpp/container"> Containers library</a></div>
+<div class="t-navbar-sep"> </div>
+<div class="t-navbar-head"><strong class="selflink"><tt>std::multiset</tt></strong></div>
+<div class="t-navbar-sep"> </div>
+</div>
+<table class="t-dcl-begin"><tbody>
+<tr class="t-dsc-header">
+<td> <div>Defined in header <code><a href="../header/set.html" title="cpp/header/set">&lt;set&gt;</a></code>
+ </div>
+</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="t-dcl">
+<td> <div><span class="mw-geshi cpp source-cpp"><span class="kw1">template</span><span class="sy1">&lt;</span><br>
+<p>    <span class="kw1">class</span> Key,<br>
+    <span class="kw1">class</span> Compare <span class="sy1">=</span> <a href="../utility/functional/less.html"><span class="kw1039">std::<span class="me2">less</span></span></a><span class="sy1">&lt;</span>Key<span class="sy1">&gt;</span>,<br>
+    <span class="kw1">class</span> Allocator <span class="sy1">=</span> <a href="../memory/allocator.html"><span class="kw700">std::<span class="me2">allocator</span></span></a><span class="sy1">&lt;</span>Key<span class="sy1">&gt;</span><br>
+</p>
+<span class="sy1">&gt;</span> <span class="kw1">class</span> multiset<span class="sy4">;</span></span></div>
+</td>
+<td> (1) </td>
+<td class="t-dcl-nopad">  </td>
+</tr> 
+<tr class="t-dcl t-since-cxx17">
+<td> <div><span class="mw-geshi cpp source-cpp"><span class="kw1">namespace</span> pmr <span class="br0">{</span><br>
+<p>    <span class="kw1">template</span> <span class="sy1">&lt;</span><span class="kw1">class</span> Key, <span class="kw1">class</span> Compare <span class="sy1">=</span> <a href="../utility/functional/less.html"><span class="kw1039">std::<span class="me2">less</span></span></a><span class="sy1">&lt;</span>Key<span class="sy1">&gt;&gt;</span><br>
+    <span class="kw1">using</span> multiset <span class="sy1">=</span> std<span class="sy4">::</span><span class="me2">multiset</span><span class="sy1">&lt;</span>Key, Compare,<br>
+                                   <a href="../memory/polymorphic_allocator.html"><span class="kw707">std::<span class="me2">pmr</span><span class="sy4">::</span><span class="me2">polymorphic_allocator</span></span></a><span class="sy1">&lt;</span>Key<span class="sy1">&gt;&gt;</span><span class="sy4">;</span><br>
+</p>
+<span class="br0">}</span></span></div>
+</td>
+<td> (2) </td>
+<td> <span class="t-mark-rev t-since-cxx17">(since C++17)</span> </td>
+</tr>
+<tr class="t-dcl-sep">
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p><code>std::multiset</code> is an associative container that contains a sorted set of objects of type Key. Unlike set, multiple keys with equivalent values are allowed. Sorting is done using the key comparison function Compare. Search, insertion, and removal operations have logarithmic complexity.
+</p>
+<p>Everywhere the standard library uses the <a href="../concept/Compare.html" title="cpp/concept/Compare"><code>Compare</code></a> concept, equivalence is determined by using the equivalence relation as described on <a href="../concept/Compare.html" title="cpp/concept/Compare"><code>Compare</code></a>.  In imprecise terms, two objects <code>a</code> and <code>b</code> are considered equivalent if neither compares less than the other: <code>!comp(a, b) &amp;&amp; !comp(b, a)</code>.
+</p>
+<p>The order of the elements that compare equivalent is the order of insertion and does not change. <span class="t-mark-rev t-since-cxx11">(since C++11)</span>
+</p>
+<p><code>std::multiset</code> meets the requirements of <a href="../concept/Container.html" title="cpp/concept/Container"><code>Container</code></a>, <a href="../concept/AllocatorAwareContainer.html" title="cpp/concept/AllocatorAwareContainer"><code>AllocatorAwareContainer</code></a>, <a href="../concept/AssociativeContainer.html" title="cpp/concept/AssociativeContainer"><code>AssociativeContainer</code></a> and <a href="../concept/ReversibleContainer.html" title="cpp/concept/ReversibleContainer"><code>ReversibleContainer</code></a>.
+</p>
+<h3><span class="mw-headline" id="Member_types">Member types</span></h3>
+<table class="t-dsc-begin">
+
+<tr class="t-dsc-hitem">
+<td>  Member type
+</td>
+<td>  Definition
+</td>
+</tr>
+
+
+<tr class="t-dsc">
+<td>  <code>key_type</code>
+</td>
+<td>  <code>Key</code> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>value_type</code>
+</td>
+<td>  <code>Key</code> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>size_type</code>
+</td>
+<td>  Unsigned integer type (usually <span class="t-lc"><a href="../types/size_t.html" title="cpp/types/size t">std::size_t</a></span>) </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>difference_type</code>
+</td>
+<td>  Signed integer type (usually <span class="t-lc"><a href="../types/ptrdiff_t.html" title="cpp/types/ptrdiff t">std::ptrdiff_t</a></span>) </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>key_compare</code>
+</td>
+<td>  <code>Compare</code> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>value_compare</code>
+</td>
+<td>  <code>Compare</code> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>allocator_type</code>
+</td>
+<td>  <code>Allocator</code> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>reference</code>
+</td>
+<td>   <table class="t-rev-begin t-rev-begin-noborder">
+<tr class="t-rev t-until-cxx11">
+<td><code>Allocator::reference</code></td>
+<td><span class="t-mark-rev t-until-cxx11">(until C++11)</span></td>
+</tr>
+<tr class="t-rev t-since-cxx11">
+<td><code>value_type&amp;</code></td>
+<td><span class="t-mark-rev t-since-cxx11">(since C++11)</span></td>
+</tr>
+</table> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>const_reference</code>
+</td>
+<td>   <table class="t-rev-begin t-rev-begin-noborder">
+<tr class="t-rev t-until-cxx11">
+<td><code>Allocator::const_reference</code></td>
+<td><span class="t-mark-rev t-until-cxx11">(until C++11)</span></td>
+</tr>
+<tr class="t-rev t-since-cxx11">
+<td><code>const value_type&amp;</code></td>
+<td><span class="t-mark-rev t-since-cxx11">(since C++11)</span></td>
+</tr>
+</table> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>pointer</code>
+</td>
+<td>   <table class="t-rev-begin t-rev-begin-noborder">
+<tr class="t-rev t-until-cxx11">
+<td><code>Allocator::pointer</code></td>
+<td><span class="t-mark-rev t-until-cxx11">(until C++11)</span></td>
+</tr>
+<tr class="t-rev t-since-cxx11">
+<td><span class="t-c"><span class="mw-geshi cpp source-cpp"><a href="../memory/allocator_traits.html"><span class="kw701">std::<span class="me2">allocator_traits</span></span></a><span class="sy1">&lt;</span>Allocator<span class="sy1">&gt;</span><span class="sy4">::</span><span class="me2">pointer</span></span></span></td>
+<td><span class="t-mark-rev t-since-cxx11">(since C++11)</span></td>
+</tr>
+</table> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>const_pointer</code>
+</td>
+<td>   <table class="t-rev-begin t-rev-begin-noborder">
+<tr class="t-rev t-until-cxx11">
+<td><code>Allocator::const_pointer</code></td>
+<td><span class="t-mark-rev t-until-cxx11">(until C++11)</span></td>
+</tr>
+<tr class="t-rev t-since-cxx11">
+<td><span class="t-c"><span class="mw-geshi cpp source-cpp"><a href="../memory/allocator_traits.html"><span class="kw701">std::<span class="me2">allocator_traits</span></span></a><span class="sy1">&lt;</span>Allocator<span class="sy1">&gt;</span><span class="sy4">::</span><span class="me2">const_pointer</span></span></span></td>
+<td><span class="t-mark-rev t-since-cxx11">(since C++11)</span></td>
+</tr>
+</table> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>iterator</code>
+</td>
+<td>   <table class="t-rev-begin t-rev-begin-noborder">
+<tr class="t-rev t-until-cxx11">
+<td><a href="../concept/BidirectionalIterator.html" title="cpp/concept/BidirectionalIterator"><code>BidirectionalIterator</code></a></td>
+<td><span class="t-mark-rev t-until-cxx11">(until C++11)</span></td>
+</tr>
+<tr class="t-rev t-since-cxx11">
+<td>Constant <a href="../concept/BidirectionalIterator.html" title="cpp/concept/BidirectionalIterator"><code>BidirectionalIterator</code></a>
+</td>
+<td><span class="t-mark-rev t-since-cxx11">(since C++11)</span></td>
+</tr>
+</table> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>const_iterator</code>
+</td>
+<td>  Constant <a href="../concept/BidirectionalIterator.html" title="cpp/concept/BidirectionalIterator"><code>BidirectionalIterator</code></a> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>reverse_iterator</code>
+</td>
+<td>  <span class="t-c"><span class="mw-geshi cpp source-cpp"><a href="../iterator/reverse_iterator.html"><span class="kw658">std::<span class="me2">reverse_iterator</span></span></a><span class="sy1">&lt;</span>iterator<span class="sy1">&gt;</span></span></span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>const_reverse_iterator</code>
+</td>
+<td>  <span class="t-c"><span class="mw-geshi cpp source-cpp"><a href="../iterator/reverse_iterator.html"><span class="kw658">std::<span class="me2">reverse_iterator</span></span></a><span class="sy1">&lt;</span>const_iterator<span class="sy1">&gt;</span></span></span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <code>node_type</code><span class="t-mark-rev t-since-cxx17">(since C++17)</span>
+</td>
+<td>  a specialization of <a href="node_handle.html" title="cpp/container/node handle">node handle</a> representing a container node </td>
+</tr>
+</table>
+<h3><span class="mw-headline" id="Member_functions">Member functions</span></h3>
+<table class="t-dsc-begin">
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div t-dsc-member-nobold-div"><div><a href="multiset/multiset.html" title="cpp/container/multiset/multiset"> <span class="t-lines"><span>(constructor)</span></span></a></div></div>
+</td>
+<td>  constructs the <code>multiset</code> <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div t-dsc-member-nobold-div"><div><a href="multiset/%7Emultiset.html" title="cpp/container/multiset/~multiset"> <span class="t-lines"><span>(destructor)</span></span></a></div></div>
+</td>
+<td>  destructs the <code>multiset</code> <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/operator%3D.html" title="cpp/container/multiset/operator="> <span class="t-lines"><span>operator=</span></span></a></div></div>
+</td>
+<td>   assigns values to the container  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/get_allocator.html" title="cpp/container/multiset/get allocator"> <span class="t-lines"><span>get_allocator</span></span></a></div></div>
+</td>
+<td>   returns the associated allocator  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h5> <span class="mw-headline" id="Iterators">  Iterators </span>
+</h5>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="multiset/begin.html" title="cpp/container/multiset/begin"> <span class="t-lines"><span>begin</span><span> cbegin</span></span></a></div>
+<div><span class="t-lines"><span></span><span></span></span></div>
+</div>
+</td>
+<td>   returns an iterator to the beginning  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="multiset/end.html" title="cpp/container/multiset/end"> <span class="t-lines"><span>end </span><span>cend</span></span></a></div>
+<div><span class="t-lines"><span></span><span></span></span></div>
+</div>
+</td>
+<td>   returns an iterator to the end  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="multiset/rbegin.html" title="cpp/container/multiset/rbegin"> <span class="t-lines"><span>rbegin</span><span> crbegin</span></span></a></div>
+<div><span class="t-lines"><span></span><span></span></span></div>
+</div>
+</td>
+<td>   returns a reverse iterator to the beginning  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="multiset/rend.html" title="cpp/container/multiset/rend"> <span class="t-lines"><span>rend</span><span> crend</span></span></a></div>
+<div><span class="t-lines"><span></span><span></span></span></div>
+</div>
+</td>
+<td>   returns a reverse iterator to the end  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h5> <span class="mw-headline" id="Capacity">  Capacity </span>
+</h5>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/empty.html" title="cpp/container/multiset/empty"> <span class="t-lines"><span>empty</span></span></a></div></div>
+</td>
+<td>   checks whether the container is empty  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/size.html" title="cpp/container/multiset/size"> <span class="t-lines"><span>size</span></span></a></div></div>
+</td>
+<td>   returns the number of elements  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/max_size.html" title="cpp/container/multiset/max size"> <span class="t-lines"><span>max_size</span></span></a></div></div>
+</td>
+<td>   returns the maximum possible number of elements  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h5> <span class="mw-headline" id="Modifiers">  Modifiers </span>
+</h5>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/clear.html" title="cpp/container/multiset/clear"> <span class="t-lines"><span>clear</span></span></a></div></div>
+</td>
+<td>   clears the contents  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/insert.html" title="cpp/container/multiset/insert"> <span class="t-lines"><span>insert</span></span></a></div></div>
+</td>
+<td>   inserts elements <span class="t-rev-inl t-since-cxx17"><span>or nodes</span> <span><span class="t-mark-rev t-since-cxx17">(since C++17)</span></span></span> <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="multiset/emplace.html" title="cpp/container/multiset/emplace"> <span class="t-lines"><span>emplace</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   constructs element in-place  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="multiset/emplace_hint.html" title="cpp/container/multiset/emplace hint"> <span class="t-lines"><span>emplace_hint</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx11">(C++11)</span></span></span></div>
+</div>
+</td>
+<td>   constructs elements in-place using a hint  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/erase.html" title="cpp/container/multiset/erase"> <span class="t-lines"><span>erase</span></span></a></div></div>
+</td>
+<td>   erases elements  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/swap.html" title="cpp/container/multiset/swap"> <span class="t-lines"><span>swap</span></span></a></div></div>
+</td>
+<td>   swaps the contents  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="multiset/extract.html" title="cpp/container/multiset/extract"> <span class="t-lines"><span>extract</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx17">(C++17)</span></span></span></div>
+</div>
+</td>
+<td>   extracts nodes from the container  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div">
+<div><a href="multiset/merge.html" title="cpp/container/multiset/merge"> <span class="t-lines"><span>merge</span></span></a></div>
+<div><span class="t-lines"><span><span class="t-mark-rev t-since-cxx17">(C++17)</span></span></span></div>
+</div>
+</td>
+<td>   splices nodes from another container <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h5> <span class="mw-headline" id="Lookup">  Lookup </span>
+</h5>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/count.html" title="cpp/container/multiset/count"> <span class="t-lines"><span>count</span></span></a></div></div>
+</td>
+<td>   returns the number of elements matching specific key  <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/find.html" title="cpp/container/multiset/find"> <span class="t-lines"><span>find</span></span></a></div></div>
+</td>
+<td>   finds element with specific key <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/equal_range.html" title="cpp/container/multiset/equal range"> <span class="t-lines"><span>equal_range</span></span></a></div></div>
+</td>
+<td>   returns range of elements matching a specific key <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/lower_bound.html" title="cpp/container/multiset/lower bound"> <span class="t-lines"><span>lower_bound</span></span></a></div></div>
+</td>
+<td>   returns an iterator to the first element <i>not less</i> than the given key <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/upper_bound.html" title="cpp/container/multiset/upper bound"> <span class="t-lines"><span>upper_bound</span></span></a></div></div>
+</td>
+<td>   returns an iterator to the first element <i>greater</i> than the given key <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+
+<tr>
+<td colspan="2"> <h5> <span class="mw-headline" id="Observers">  Observers </span>
+</h5>
+</td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/key_comp.html" title="cpp/container/multiset/key comp"> <span class="t-lines"><span>key_comp</span></span></a></div></div>
+</td>
+<td>   returns the function that compares keys <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/value_comp.html" title="cpp/container/multiset/value comp"> <span class="t-lines"><span>value_comp</span></span></a></div></div>
+</td>
+<td>   returns the function that compares keys in objects of type value_type <br> <span class="t-mark">(public member function)</span> </td>
+</tr>
+</table>
+<h3><span class="mw-headline" id="Non-member_functions">Non-member functions</span></h3>
+<table class="t-dsc-begin">
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/operator_cmp.html" title="cpp/container/multiset/operator cmp"> <span class="t-lines"><span>operator==</span><span>operator!=</span><span>operator&lt;</span><span>operator&lt;=</span><span>operator&gt;</span><span>operator&gt;=</span></span></a></div></div>
+</td>
+<td>   lexicographically compares the values in the multiset  <br> <span class="t-mark">(function template)</span> </td>
+</tr>
+
+<tr class="t-dsc">
+<td>  <div class="t-dsc-member-div"><div><a href="multiset/swap2.html" title="cpp/container/multiset/swap2"> <span class="t-lines"><span>std::swap<span class="t-dsc-small">(std::multiset)</span></span></span></a></div></div>
+</td>
+<td>   specializes the <span class="t-lc"><a href="../algorithm/swap.html" title="cpp/algorithm/swap">std::swap</a></span> algorithm  <br> <span class="t-mark">(function template)</span> </td>
+</tr>
+</table>
+<h3><span class="mw-headline" id="Deduction_guides.28since_C.2B.2B17.29"><a href="multiset/deduction_guides.html" title="cpp/container/multiset/deduction guides">Deduction guides</a><span class="t-mark-rev t-since-cxx17">(since C++17)</span></span></h3>
+<h3><span class="mw-headline" id="Notes">Notes</span></h3>
+<p>The member types <code>iterator</code> and <code>const_iterator</code> may be aliases to the same type. Since <code>iterator</code> is convertible to <code>const_iterator</code>, <code>const_iterator</code> should be used in function parameter lists to avoid violations of the One Definition Rule.
+</p>
+<!-- 
+NewPP limit report
+Preprocessor visited node count: 9754/1000000
+Preprocessor generated node count: 16408/1000000
+Post‐expand include size: 278507/2097152 bytes
+Template argument size: 52376/2097152 bytes
+Highest expansion depth: 23/40
+Expensive parser function count: 0/100
+-->
+
+<!-- Saved in parser cache with key mwiki1-mwiki_en_:pcache:idhash:1010-0!*!0!!en!*!* and timestamp 20180305045320 -->
+</div>                    <!-- /bodycontent -->
+                                        <!-- printfooter -->
+                    <div class="printfooter">
+                    Retrieved from "<a href="http://en.cppreference.com/mwiki/index.php?title=cpp/container/multiset&amp;oldid=98454">http://en.cppreference.com/mwiki/index.php?title=cpp/container/multiset&amp;oldid=98454</a>"                    </div>
+                    <!-- /printfooter -->
+                                                            <!-- catlinks -->
+                    <div id="catlinks" class="catlinks catlinks-allhidden"><div id="mw-hidden-catlinks" class="mw-hidden-catlinks mw-hidden-cats-hidden">Hidden category: <ul><li><a href="http://en.cppreference.com/w/Category:Pages_with_unreviewed_LWG_DR_marker" title="Category:Pages with unreviewed LWG DR marker">Pages with unreviewed LWG DR marker</a></li></ul>
+</div></div>                    <!-- /catlinks -->
+                                                            <div class="visualClear"></div>
+                    <!-- debughtml -->
+                                        <!-- /debughtml -->
+                </div>
+                <!-- /bodyContent -->
+            </div>
+        </div>
+        <!-- /content -->
+        <!-- footer -->
+        <!-- /footer -->
+        
+
+
+
+<!-- Served in 1.544 secs. -->
+	</body>
+<!-- Cached 20180305045320 -->
+</html>
