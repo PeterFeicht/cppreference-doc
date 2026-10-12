@@ -31,10 +31,13 @@ from commands.preprocess import build_rename_map
 from commands.preprocess import convert_loader_name
 from commands.preprocess import has_class
 from commands.preprocess import is_external_link
+from commands.preprocess import is_loader_link
 from commands.preprocess import is_ranges_placeholder
+from commands.preprocess import is_upload_link
+from commands.preprocess import preprocess_css
 from commands.preprocess import remove_ads
+from commands.preprocess import remove_analytics
 from commands.preprocess import remove_fileinfo
-from commands.preprocess import remove_google_analytics
 from commands.preprocess import remove_noprint
 from commands.preprocess import remove_see_also
 from commands.preprocess import remove_unused_external
@@ -76,6 +79,102 @@ class TestConvertLoaderName(unittest.TestCase):
 
         with self.assertRaises(Exception):
             convert_loader_name('')
+
+    def test_convert_loader_name_after_upgrade(self):
+        # the 2026 upgrade moved the loader to the root of the site and split
+        # the site styles off into a module of their own
+        url = '/load.php?lang=en&modules=startup&only=scripts&raw=1&skin=cppreference2'  # noqa
+        self.assertEqual('startup_scripts.js', convert_loader_name(url))
+
+        url = '/load.php?lang=en&modules=site.styles&only=styles&skin=cppreference2'  # noqa
+        self.assertEqual('site_modules.css', convert_loader_name(url))
+
+        url = '/load.php?lang=en&modules=ext.pygments%7Cskins.cppreference2.styles&only=styles&skin=cppreference2'  # noqa
+        self.assertEqual('ext.css', convert_loader_name(url))
+
+
+class TestIsLoaderLink(unittest.TestCase):
+    def test_is_loader_link(self):
+        loader = [
+            'http://en.cppreference.com/mwiki/load.php?modules=site&only=styles',  # noqa
+            'https://en.cppreference.com/load.php?modules=site.styles&only=styles',  # noqa
+            '/load.php?modules=site.styles&only=styles',
+            '../../load.php?modules=site.styles&only=styles',
+            # wget writes the query as part of the file name
+            '../load.php@modules=site.styles&only=styles',
+        ]
+        for link in loader:
+            self.assertTrue(is_loader_link(link),
+                            msg="Should be a loader link: {}".format(link))
+
+        other = [
+            'https://en.cppreference.com/cpp/io.html',
+            '../io/basic_ostream.html',
+            'upload.php?foo=bar',
+        ]
+        for link in other:
+            self.assertFalse(is_loader_link(link),
+                             msg="Should not be a loader link: {}".format(link))
+
+
+class TestIsUploadLink(unittest.TestCase):
+    def test_is_upload_link(self):
+        upload = [
+            'https://upload.cppreference.com/mwiki/images/0/06/foo.svg',
+            'http://upload.cppreference.com/mwiki/images/0/06/foo.svg',
+            '//upload.cppreference.com/images/0/06/foo.svg',
+        ]
+        for link in upload:
+            self.assertTrue(is_upload_link(link),
+                            msg="Should be an upload link: {}".format(link))
+
+        other = [
+            'https://en.cppreference.com/images/0/06/foo.svg',
+            '../common/images/0/06/foo.svg',
+        ]
+        for link in other:
+            self.assertFalse(is_upload_link(link),
+                             msg="Should not be an upload link: {}".format(link))  # noqa
+
+
+class TestPreprocessCss(unittest.TestCase):
+    def test_images_of_the_site(self):
+        # the site points at the locations these had before the 2026 upgrade
+        text = ('a{background-image:url(https://upload.cppreference.com/mwiki/images/2/23/Icons-mini-file_acrobat.gif)}\n'  # noqa
+                'b{background-image:url(//en.cppreference.com/mwiki/skins/cppreference2/images/navbar-tab.png)}\n'  # noqa
+                'c{background-image:url(https://en.cppreference.com/mwiki/skins/vector/images/external-link-ltr-icon.png)}')  # noqa
+
+        self.assertEqual(
+            'a{background-image:url(images/2/23/Icons-mini-file_acrobat.gif)}\n'  # noqa
+            'b{background-image:url(skins/Cppreference2/resources/images/navbar-tab.png)}\n'  # noqa
+            'c{background-image:url(skins/Cppreference2/resources/images/external-link-ltr-icon.png)}',  # noqa
+            preprocess_css(text))
+
+    def test_version_of_the_loader(self):
+        # the version is part of the file name in the copy of the site, and
+        # the files were renamed without it
+        text = ('a{background-image:url(skins/Cppreference2/resources/images/tab-break.png%3Ff9125)}\n'  # noqa
+                'b{background-image:url("page-fade.png?577de")}')
+
+        self.assertEqual(
+            'a{background-image:url(skins/Cppreference2/resources/images/tab-break.png)}\n'  # noqa
+            'b{background-image:url("page-fade.png")}',
+            preprocess_css(text))
+
+    def test_fonts_of_the_site(self):
+        # the site no longer serves the fonts; what is left of the rule names
+        # the face as it is installed locally, and the stacks that ask for it
+        # fall back on a generic family
+        text = ('@font-face{font-family:"DejaVuSans" ;src:local("DejaVu Sans"),url(//en.cppreference.com/DejaVuSans.ttf) format("truetype");font-weight:normal}\n'  # noqa
+                'body{font-family:DejaVuSans,"DejaVu Sans",arial,sans-serif}')
+
+        self.assertEqual(
+            '\nbody{font-family:DejaVuSans,"DejaVu Sans",arial,sans-serif}',
+            preprocess_css(text))
+
+    def test_nth_child(self):
+        self.assertEqual('tr > td:first-child{color:red}',
+                         preprocess_css('tr > td:nth-child(1){color:red}'))
 
 
 class TestHasClass(unittest.TestCase):
@@ -161,6 +260,9 @@ class TestPlaceholderLinks(unittest.TestCase):
             'http://en.cppreference.com/w/cpp/ranges-algorithm-placeholder/all_any_none_of',  # noqa
             'http://en.cppreference.com/w/cpp/ranges-iterator-placeholder/dangling',  # noqa
             'http://en.cppreference.com/w/cpp/ranges-utility-placeholder/swap',  # noqa
+            # the 2026 upgrade moved the wiki out of /w/
+            'http://en.cppreference.com/cpp/ranges-placeholder/concepts/Assignable',  # noqa
+            'http://en.cppreference.com/cpp/ranges-algorithm-placeholder/all_any_none_of',  # noqa
         ]
         for target in match:
             self.assertTrue(is_ranges_placeholder(target),
@@ -280,8 +382,8 @@ class TestPreprocessHtml(unittest.TestCase):
         remove_see_also(self.html)
         self.check_output("fabs_seealso.html")
 
-    def test_remove_google_analytics(self):
-        remove_google_analytics(self.html)
+    def test_remove_analytics(self):
+        remove_analytics(self.html)
         self.check_output("fabs_ga.html")
 
     def test_remove_ads(self):
@@ -425,14 +527,6 @@ class TestFileRename(unittest.TestCase):
             ('output/dir1/sub2/Conflict.html',
              '../f1?some=param#p2',
              '../f1#p2'),
-
-            ('output/dir1/sub2/Conflict.html',
-             '../mwiki/site.css',
-             '../common/site.css'),
-
-            ('output/dir1/sub2/Conflict.html',
-             '../../upload.cppreference.com/mwiki/site.css',
-             '../common/site.css'),
 
             ('output/dir1/f2',
              'sub1/invalid*.txt',

@@ -39,15 +39,66 @@ def move_dir_contents_to_dir(srcdir, dstdir):
                     os.path.join(dstdir, fn))
 
 
+def is_data_file(fn):
+    # Everything the wiki serves next to the pages themselves: the skin, the
+    # style sheets and scripts the loader assembles, and the fonts and the
+    # favicon in case the site serves them again.
+    return (fn in ['skins', 'resources', 'favicon.ico'] or
+            fn.startswith('load.php') or fn.endswith('.ttf'))
+
+
+def move_data_to_dir(src, dstdir):
+    # the data should be the same for all languages, so the first language to
+    # bring a file wins
+    dst = os.path.join(dstdir, os.path.basename(src))
+    if os.path.isdir(src) and os.path.isdir(dst):
+        for fn in os.listdir(src):
+            move_data_to_dir(os.path.join(src, fn), dst)
+        os.rmdir(src)
+    elif not os.path.exists(dst):
+        shutil.move(src, dst)
+
+
+def loader_modules(fn):
+    match = re.search(r'modules=([^&]*)', fn)
+    if match is None:
+        return set()
+    return set(urllib.parse.unquote(match.group(1)).split('|'))
+
+
+def collapse_loader_files(data_path):
+    # Since the 2026 upgrade the loader serves a style sheet cut to measure
+    # for every page: the skin, plus whatever extensions that page happens to
+    # draw on.  That is the same rules in a dozen combinations, and
+    # convert_loader_name() gives them all one name, so keep the one that
+    # asks for the most modules and throw the rest away.
+    groups = dict()
+    for fn in os.listdir(data_path):
+        if fn.startswith('load.php'):
+            groups.setdefault(convert_loader_name(fn), []).append(fn)
+
+    for name, filenames in groups.items():
+        filenames.sort(key=lambda fn: len(loader_modules(fn)))
+        keep = loader_modules(filenames[-1])
+
+        for fn in filenames[:-1]:
+            missing = loader_modules(fn) - keep
+            if missing:
+                msg = '{0} asks for {1}, which no other {2} has'.format(
+                    fn, ', '.join(sorted(missing)), name)
+                raise Exception(msg)
+            os.remove(os.path.join(data_path, fn))
+
+
 def rearrange_archive(root):
     # rearrange the archive. {root} here is output/reference
 
     # before
-    # {root}/en.cppreference.com/w/ : html
-    # {root}/en.cppreference.com/mwiki/ : data
-    # {root}/en.cppreference.com/ : data
+    # {root}/en.cppreference.com/ : html
+    # {root}/en.cppreference.com/load.php?... : data
+    # {root}/en.cppreference.com/{skins,resources}/ : data
     # ... (other languages)
-    # {root}/upload.cppreference.com/mwiki/ : data
+    # {root}/upload.cppreference.com/images/ : data
 
     # after
     # {root}/common/ : all common data
@@ -56,33 +107,24 @@ def rearrange_archive(root):
 
     data_path = os.path.join(root, 'common')
     rmtree_if_exists(data_path)
-    shutil.move(os.path.join(root, 'upload.cppreference.com/mwiki'), data_path)
-    shutil.rmtree(os.path.join(root, 'upload.cppreference.com'))
+    os.makedirs(data_path)
+
+    upload_path = os.path.join(root, 'upload.cppreference.com')
+    move_dir_contents_to_dir(upload_path, data_path)
+    shutil.rmtree(upload_path)
 
     for lang in ["en"]:
-        path = os.path.join(root, lang + ".cppreference.com/")
-        src_html_path = path + "w/"
-        src_data_path = path + "mwiki/"
+        path = os.path.join(root, lang + ".cppreference.com")
         html_path = os.path.join(root, lang)
 
-        if os.path.isdir(src_html_path):
-            shutil.move(src_html_path, html_path)
+        for fn in os.listdir(path):
+            if is_data_file(fn):
+                move_data_to_dir(os.path.join(path, fn), data_path)
 
-        if os.path.isdir(src_data_path):
-            # the skin files should be the same for all languages thus we
-            # can merge everything
-            move_dir_contents_to_dir(src_data_path, data_path)
+        # what is left are the pages
+        shutil.move(path, html_path)
 
-        # also copy the custom fonts
-        shutil.copy(os.path.join(path, 'DejaVuSansMonoCondensed60.ttf'),
-                    data_path)
-        shutil.copy(os.path.join(path, 'DejaVuSansMonoCondensed75.ttf'),
-                    data_path)
-        # and the favicon
-        shutil.copy(os.path.join(path, 'favicon.ico'), data_path)
-
-        # remove what's left
-        shutil.rmtree(path)
+    collapse_loader_files(data_path)
 
     # remove the XML source file
     for fn in fnmatch.filter(os.listdir(root), 'cppreference-export*.xml'):
@@ -94,13 +136,15 @@ def convert_loader_name(fn):
     # simplified name
     if "modules=site&only=scripts" in fn:
         return "site_scripts.js"
-    if "modules=site&only=styles" in fn:
+    if re.search(r'modules=site(\.styles)?&only=styles', fn):
         return "site_modules.css"
     if "modules=startup&only=scripts" in fn:
         return "startup_scripts.js"
     if re.search("modules=skins.*&only=scripts", fn):
         return "skin_scripts.js"
-    if re.search("modules=.*ext.*&only=styles", fn):
+    # the styles of the skin and of whatever extensions the page draws on,
+    # which the loader serves in one file
+    if re.search(r'modules=.*(ext|jquery|mediawiki|skins).*&only=styles', fn):
         return "ext.css"
     msg = 'Loader file {0} does not match any known files'.format(fn)
     raise Exception(msg)
@@ -169,19 +213,41 @@ def find_html_files(root):
 
 
 def is_loader_link(target):
-    if re.match(r'https?://[a-z]+\.cppreference\.com/mwiki/load\.php', target):
+    # The loader sits at the root of the site, so the link is relative in a
+    # page that wget got the file for and absolute in one that it did not.
+    if re.search(r'(^|/)load\.php(?:[\?@]|%3[Ff])', target):
         return True
     return False
 
 
 def transform_loader_link(target, file, root):
-    # Absolute loader.php links need to be made relative
+    # Loader links point into the common data directory wherever they came
+    # from, so the link is built from scratch rather than adjusted
     abstarget = os.path.join(root, "common", convert_loader_name(target))
     return os.path.relpath(abstarget, os.path.dirname(file))
 
 
+# The uploaded images moved out of /mwiki/ with the 2026 upgrade, but the
+# pages still link to the old location.
+UPLOAD_LINK = re.compile(
+    r'(?:https?:)?//upload\.cppreference\.com/(?:mwiki/)?images/')
+
+
+def is_upload_link(target):
+    if UPLOAD_LINK.match(target):
+        return True
+    return False
+
+
+def transform_upload_link(target, file, root):
+    path = urllib.parse.unquote(UPLOAD_LINK.sub('', target))
+    abstarget = os.path.join(root, "common", "images", path)
+    return urllib.parse.quote(
+        os.path.relpath(abstarget, os.path.dirname(file)))
+
+
 def is_ranges_placeholder(target):
-    if re.match(r'https?://[a-z]+\.cppreference\.com/w/cpp/ranges(-[a-z]+)?-placeholder/.+', target):  # noqa
+    if re.match(r'https?://[a-z]+\.cppreference\.com/(w/)?cpp/ranges(-[a-z]+)?-placeholder/.+', target):  # noqa
         return True
     return False
 
@@ -194,9 +260,9 @@ def transform_ranges_placeholder(target, file, root):
     repl = (r'\1/cpp/experimental/ranges/\2' if ranges else r'\1/cpp/\2')
 
     if 'ranges-placeholder' in target:
-        match = r'https?://([a-z]+)\.cppreference\.com/w/cpp/ranges-placeholder/(.+)'  # noqa
+        match = r'https?://([a-z]+)\.cppreference\.com/(?:w/)?cpp/ranges-placeholder/(.+)'  # noqa
     else:
-        match = r'https?://([a-z]+)\.cppreference\.com/w/cpp/ranges-([a-z]+)-placeholder/(.+)'  # noqa
+        match = r'https?://([a-z]+)\.cppreference\.com/(?:w/)?cpp/ranges-([a-z]+)-placeholder/(.+)'  # noqa
         repl += (r'/\3' if ranges else r'/ranges/\3')
 
     # Turn absolute placeholder link into site-relative link
@@ -218,8 +284,6 @@ def trasform_relative_link(rename_map, target, file):
     assert params == ''
 
     path = urllib.parse.unquote(path)
-    path = path.replace('../../upload.cppreference.com/mwiki/', '../common/')
-    path = path.replace('../mwiki/', '../common/')
 
     dir, fn = os.path.split(path)
     new_fn = rename_map.get(fn)
@@ -246,6 +310,9 @@ def trasform_relative_link(rename_map, target, file):
 def transform_link(rename_map, target, file, root):
     if is_loader_link(target):
         return transform_loader_link(target, file, root)
+
+    if is_upload_link(target):
+        return transform_upload_link(target, file, root)
 
     if is_ranges_placeholder(target):
         return transform_ranges_placeholder(target, file, root)
@@ -310,15 +377,19 @@ def remove_see_also(html):
             next.getparent().remove(next)
 
 
-# remove Google Analytics scripts
-def remove_google_analytics(html):
-    for el in html.xpath('/html/body/script'):
+# remove analytics scripts; the New Relic agent is inlined into the head of
+# every page and makes up the bulk of what a page weighs
+def remove_analytics(html):
+    sources = ['google-analytics.com/ga.js',
+               'static.cloudflareinsights.com']
+    texts = ['google-analytics.com/ga.js', 'pageTracker', 'NREUM']
+
+    for el in html.xpath('/html/head/script') + html.xpath('/html/body/script'):
         if el.get('src') is not None:
-            if 'google-analytics.com/ga.js' in el.get('src'):
+            if any(src in el.get('src') for src in sources):
                 el.getparent().remove(el)
         elif el.text is not None:
-            if 'google-analytics.com/ga.js' in el.text or \
-                    'pageTracker' in el.text:
+            if any(text in el.text for text in texts):
                 el.getparent().remove(el)
 
 
@@ -342,7 +413,7 @@ def remove_ads(html):
 
 # remove links to file info pages (e.g. on images)
 def remove_fileinfo(html):
-    info = etree.XPath(r"//a[re:test(@href, 'https?://[a-z]+\.cppreference\.com/w/File:')]/..",  # noqa
+    info = etree.XPath(r"//a[re:test(@href, 'https?://[a-z]+\.cppreference\.com/(w/)?File:')]/..",  # noqa
                        namespaces={'re':'http://exslt.org/regular-expressions'})  # noqa
     for el in info(html):
         el.getparent().remove(el)
@@ -359,7 +430,7 @@ def add_footer(html, root, fn):
 
             link = etree.SubElement(etree.SubElement(items, 'li'), 'a')
             url = re.sub(r'(..)/(.*)\.html',
-                         r'https://\1.cppreference.com/w/\2',
+                         r'https://\1.cppreference.com/\2',
                          os.path.relpath(fn, root))
             url = re.sub(r'(.*)/index', r'\1/', url)
             link.set('href', url)
@@ -392,7 +463,7 @@ def preprocess_html_file(root, fn, rename_map):
 
     remove_unused_external(html)
     remove_noprint(html, keep_footer=True)
-    remove_google_analytics(html)
+    remove_analytics(html)
     remove_ads(html)
     remove_fileinfo(html)
 
@@ -411,27 +482,34 @@ def preprocess_html_file(root, fn, rename_map):
     return output.getvalue()
 
 
-def preprocess_css_file(fn):
-    f = open(fn, "r", encoding='utf-8')
-    text = f.read()
-    f.close()
+def preprocess_css(text):
+    # the uploaded images and the skin files the site still points at the
+    # locations they had before the 2026 upgrade; both now live next to the
+    # style sheet in the common data directory
+    text = UPLOAD_LINK.sub('images/', text)
+    text = re.sub(r'(?:https?:)?//[a-z]+\.cppreference\.com/mwiki/skins/[^)\'"]*/images/',  # noqa
+                  'skins/Cppreference2/resources/images/', text)
 
-    # note that query string is not used in css files
+    # the loader stamps a version onto the images it serves; the copy of the
+    # site has it as part of the file name, percent-encoded, and the files
+    # were renamed without it
+    text = re.sub(r'(url\([^)]*?)(?:[\?@]|%3[Ff])[^)\'"]*', r'\1', text)
 
-    text = text.replace('../DejaVuSansMonoCondensed60.ttf',
-                        'DejaVuSansMonoCondensed60.ttf')
-    text = text.replace('../DejaVuSansMonoCondensed75.ttf',
-                        'DejaVuSansMonoCondensed75.ttf')
-
-    text = text.replace('../../upload.cppreference.com/mwiki/images/',
-                        'images/')
+    # the fonts are no longer served; the rules that are left behind name
+    # locally installed fonts and the generic families to fall back to
+    text = re.sub(r'@font-face\s*{[^}]*(?:https?:)?//[a-z]+\.cppreference\.com/[^}]*}',  # noqa
+                  '', text)
 
     # QT Help viewer doesn't understand nth-child
-    text = text.replace('nth-child(1)', 'first-child')
+    return text.replace('nth-child(1)', 'first-child')
 
-    f = open(fn, "w", encoding='utf-8')
-    f.write(text)
-    f.close()
+
+def preprocess_css_file(fn):
+    with open(fn, "r", encoding='utf-8') as f:
+        text = f.read()
+
+    with open(fn, "w", encoding='utf-8') as f:
+        f.write(preprocess_css(text))
 
 
 def preprocess_startup_script(fn):
