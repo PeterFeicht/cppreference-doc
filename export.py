@@ -23,6 +23,15 @@ import json
 import urllib.parse
 import urllib.request
 
+# the site turns away the user agent urllib introduces itself with
+USER_AGENT = 'cppreference-doc (+https://github.com/PeterFeicht/cppreference-doc)'  # noqa
+
+
+def install_user_agent():
+    opener = urllib.request.build_opener()
+    opener.addheaders = [('User-Agent', USER_AGENT)]
+    urllib.request.install_opener(opener)
+
 
 def retrieve_page_names(root, ns_index):
 
@@ -46,7 +55,11 @@ def retrieve_page_names(root, ns_index):
             data = json.loads(f.read().decode('utf-8'))
             pages += [p['title'] for p in data['query']['allpages']]
 
-            if ('query-continue' in data and
+            # MediaWiki 1.26 and later answer with 'continue'; the older
+            # 'query-continue' is only sent when asked for
+            if 'continue' in data and 'apcontinue' in data['continue']:
+                begin = data['continue']['apcontinue']
+            elif ('query-continue' in data and
                     'allpages' in data['query-continue'] and
                     'apcontinue' in data['query-continue']['allpages']):
                 begin = data['query-continue']['allpages']['apcontinue']
@@ -78,6 +91,8 @@ def main():
     parser.add_argument('ns_index', type=str, nargs='+',
                         help='The indices of the namespaces to retrieve')
     args = parser.parse_args()
+
+    install_user_agent()
 
     pages = []
     for ns_index in args.ns_index:

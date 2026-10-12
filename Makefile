@@ -48,6 +48,7 @@ DISTFILES= \
 		devhelp2qch.py              \
 		export.py                   \
 		fix_devhelp-links.py        \
+		fixup_source.py             \
 		index2autolinker.py         \
 		index2browser.py            \
 		index2ddg.py                \
@@ -243,8 +244,9 @@ source:
 	mkdir "reference"
 
 	pushd "reference" > /dev/null; \
-	regex=".*index\\.php.*|.*action=.*|.*printable=.*|.*en.cppreference.com/book.*" \
-	regex+="|.*/(User|Special|Talk|Help|File|Cppreference|WhatLinksHere|Template|Category|MediaWiki)(_talk)?(:|%253[aA]).*" ; \
+	regex=".*index\\.php.*|.*rest\\.php.*|.*action=.*|.*printable=.*|.*en.cppreference.com/book.*" \
+	regex+="|.*/(User|Special|Talk|Help|File|Cppreference|WhatLinksHere|Template|Category|MediaWiki)(_talk)?(:|%253[aA]).*" \
+	regex+="|.*\\.cppreference\\.com/mwiki/.*" ; \
 	echo $$regex ; \
 	wget --adjust-extension --page-requisites --convert-links \
 		--force-directories --recursive --level=15 \
@@ -252,7 +254,16 @@ source:
 		--reject-regex $$regex \
 		--timeout=5 --tries=50 --no-verbose \
 		--retry-connrefused --waitretry=10 --read-timeout=20 \
-		https://en.cppreference.com/w/ ; \
+		https://en.cppreference.com/ ; \
 	popd > /dev/null
 
-	./export.py --url=https://en.cppreference.com/mwiki reference/cppreference-export-ns0,4,8,10.xml 0 4 8 10
+	# the site still points at the pre-2026 locations for images and skin
+	# files; fetch those from where they live now
+	./fixup_source.py --src reference
+
+	# The wiki source of the pages is no longer part of the copy: since the
+	# 2026 upgrade the site answers 403 to any request that names more than
+	# one page -- Special:Export and the API alike, which is what export.py
+	# asks for -- and a copy worth having is not worth 19000 requests.
+	# Nothing in the build reads it; preprocess.py threw it away.
+	#./export.py --url=https://en.cppreference.com reference/cppreference-export-ns0,4,8,10.xml 0 4 8 10
