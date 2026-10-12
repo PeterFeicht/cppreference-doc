@@ -1,0 +1,204 @@
+# Builds the Qt Help (.qch) archive, and publishes it when a version is tagged.
+#
+# The raw copy of the website is not in this repository and is far too large to
+# be.  Rather than crawling en.cppreference.com on every run -- which the README
+# asks us not to do -- the site copy is taken out of the source archive of an
+# earlier release: `make release` packs `reference/` into
+# `cppreference-doc-<version>.tar.xz`, which is 13 MB and downloads in about a
+# minute.  Point `site_release` at the tag whose content you want, or refresh
+# the content for a real release by running `make source` locally and publishing
+# a new source archive.
+
+name: Qt Help archive
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      site_release:
+        description: 'Release to take the reference/ site copy from (blank = latest)'
+        type: string
+        default: ''
+      site_repository:
+        description: 'Repository to take it from (blank = this one, then the ones it was forked from)'
+        type: string
+        default: ''
+
+# A run that has been superseded is of no interest; a tag builds on its own.
+concurrency:
+  group: qch-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    permissions:
+      contents: write      # the publishing step attaches the archives
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-ci.txt
+
+      - name: Install the Python dependencies
+        run: pip install -r requirements.txt -r requirements-ci.txt
+
+      - name: Install qhelpgenerator
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends qt6-documentation-tools
+          # Qt keeps it out of the way under /usr/lib/qt6/libexec, and the
+          # package is free to move it, so ask dpkg where it landed.
+          qhg=$(dpkg -L qt6-documentation-tools | grep -E '/qhelpgenerator$' | head -1)
+          test -x "$qhg" || { echo "::error::qhelpgenerator not found"; exit 1; }
+          echo "QHELPGENERATOR=$qhg" >> "$GITHUB_ENV"
+
+      - name: Check the style
+        # pylint is left out on purpose: `config/pylintrc` predates pylint 3 and
+        # is rejected across the whole repository, so `test.sh` does not run
+        # clean here.  Fixing that is its own change.
+        run: >
+          flake8 --config=config/flake8rc
+          *.py commands index_transform
+          gadgets/standard_revisions_tests/*.py tests
+
+      - name: Run the tests
+        run: python -m unittest discover
+
+      - name: Work out the version
+        run: |
+          version=$(sed -n 's/^VERSION=//p' Makefile)
+          test -n "$version" || { echo "::error::no VERSION in the Makefile"; exit 1; }
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          echo "Building version $version"
+
+          # A tag that disagrees with the Makefile would publish archives whose
+          # names do not match the release they hang under.
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match VERSION=$version in the Makefile"
+            exit 1
+          fi
+
+      - name: Fetch the copy of the website
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SITE_TAG: ${{ inputs.site_release }}
+          SITE_REPO: ${{ inputs.site_repository }}
+        run: |
+          # Where to look, in order: what the run asked for, this repository,
+          # and the ones it was forked from.  A fork has no releases of its
+          # own until it makes one, and the archive is the same either way.
+          candidates=()
+          if [ -n "$SITE_REPO" ]; then
+            candidates+=("$SITE_REPO")
+          fi
+          candidates+=("$GITHUB_REPOSITORY")
+          while read -r parent; do
+            if [ -n "$parent" ]; then
+              candidates+=("$parent")
+            fi
+          done < <(gh api "repos/$GITHUB_REPOSITORY" \
+                     -q '.parent.full_name // empty, .source.full_name // empty' \
+                     2>/dev/null)
+
+          for repo in "${candidates[@]}"; do
+            echo "Looking for the site copy in $repo"
+            # No tag asks gh for the latest release.
+            if gh release download ${SITE_TAG:+"$SITE_TAG"} \
+                 --repo "$repo" \
+                 --pattern 'cppreference-doc-*.tar.xz' \
+                 --clobber; then
+              site_repo="$repo"
+              break
+            fi
+          done
+
+          if [ -z "${site_repo:-}" ]; then
+            echo "::error::no cppreference-doc-*.tar.xz release asset in ${candidates[*]}"
+            exit 1
+          fi
+          echo "Site copy from $site_repo"
+
+          tar xJf cppreference-doc-*.tar.xz
+          rm -rf reference
+          mv cppreference-doc-*/reference reference
+          rm -rf cppreference-doc-*/ cppreference-doc-*.tar.xz
+
+          echo "Pages in the site copy: $(find reference -name '*.html' | wc -l)"
+
+      - name: Build the archive
+        run: make doc_qch qhelpgenerator="$QHELPGENERATOR"
+
+      - name: Check the archive
+        # The .qch is a SQLite database, so it can say for itself whether the
+        # pages, the images and both stylesheets arrived in it.
+        run: |
+          python - <<'EOF'
+          import sqlite3
+          import sys
+
+          db = sqlite3.connect('output/cppreference-doc-en-cpp.qch')
+          count, = db.execute('select count(*) from FileNameTable').fetchone()
+          sheets = sorted(name for (name,) in db.execute(
+              "select Name from FileNameTable where Name like 'common/offline%'"))
+          images, = db.execute(
+              "select count(*) from FileNameTable where Name like '%.svg'"
+              " or Name like '%.png'").fetchone()
+
+          print('files: %d, images: %d' % (count, images))
+          print('stylesheets: %s' % ', '.join(sheets))
+
+          if count < 6000:
+              sys.exit('only %d files in the archive' % count)
+          if len(sheets) != 3:
+              sys.exit('expected three stylesheets, found %d' % len(sheets))
+          if images < 50:
+              sys.exit('only %d images in the archive' % images)
+          EOF
+
+      # Handed to this, GitHub zips whatever it is given and serves the result
+      # under the artifact's name, so it gets the .qch itself rather than the
+      # release archives: those would come down as a zip holding an archive
+      # holding the one file anybody wanted, compressed twice over.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cppreference-doc-en-cpp-${{ env.VERSION }}
+          path: output/cppreference-doc-en-cpp.qch
+          if-no-files-found: error
+
+      - name: Package it as the release archives
+        # Release assets are served as they are, so these are the real thing:
+        # the same two names and the same format `make release` writes.
+        if: github.ref_type == 'tag'
+        run: |
+          mkdir -p release
+          pushd output > /dev/null
+          tar cJf "../release/qch-book-$VERSION.tar.xz" "cppreference-doc-en-cpp.qch"
+          zip -qr "../release/qch-book-$VERSION.zip" "cppreference-doc-en-cpp.qch"
+          popd > /dev/null
+          ls -lh release
+
+      - name: Publish the release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            # a release made by hand, or an earlier run of this workflow
+            gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+              --clobber release/*
+          else
+            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+              --title "$GITHUB_REF_NAME" --generate-notes \
+              release/*
+          fi

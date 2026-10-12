@@ -48,6 +48,7 @@ DISTFILES= \
 		devhelp2qch.py              \
 		export.py                   \
 		fix_devhelp-links.py        \
+		fixup_source.py             \
 		index2autolinker.py         \
 		index2browser.py            \
 		index2ddg.py                \
@@ -65,6 +66,8 @@ DISTFILES= \
 		preprocess.py               \
 		preprocess-css.css          \
 		preprocess_qch.py           \
+		qch-dark.css                \
+		qch-viewer.css              \
 		test.sh                     \
 		xml_utils.py                \
 		requirements.txt            \
@@ -179,19 +182,19 @@ output/cppreference-doc-en-cpp.devhelp2: output/reference output/link-map.xml
 #build the .qch (QT help) file
 output/cppreference-doc-en-cpp.qch: output/qch-help-project-cpp.xml
 	#qhelpgenerator only works if the project file is in the same directory as the documentation
-	cp "output/qch-help-project-cpp.xml" "output/reference_cssless/qch.qhp"
+	cp "output/qch-help-project-cpp.xml" "output/reference_qch/qch.qhp"
 
-	pushd "output/reference_cssless" > /dev/null; \
+	pushd "output/reference_qch" > /dev/null; \
 	$(qhelpgenerator) "qch.qhp" -o "../cppreference-doc-en-cpp.qch"; \
 	popd > /dev/null
 
-	rm -f "output/reference_cssless/qch.qhp"
+	rm -f "output/reference_qch/qch.qhp"
 
-output/qch-help-project-cpp.xml: output/cppreference-doc-en-cpp.devhelp2 output/reference_cssless
+output/qch-help-project-cpp.xml: output/cppreference-doc-en-cpp.devhelp2 output/reference_qch
 	#build the file list
 	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?><files>" > "output/qch-files.xml"
 
-	pushd "output/reference_cssless" > /dev/null; \
+	pushd "output/reference_qch" > /dev/null; \
 	find . -type f -not -iname "*.ttf" \
 		-exec echo "<file>"'{}'"</file>" \; | LC_ALL=C sort >> "../qch-files.xml" ; \
 	popd > /dev/null
@@ -221,8 +224,8 @@ output/reference:
 	mkdir -p output
 	./preprocess.py --src reference --dst output/reference
 
-output/reference_cssless: output/reference
-	./preprocess_qch.py --src output/reference --dst output/reference_cssless
+output/reference_qch: output/reference
+	./preprocess_qch.py --src output/reference --dst output/reference_qch
 
 # create indexes for the wiki
 indexes:
@@ -241,8 +244,9 @@ source:
 	mkdir "reference"
 
 	pushd "reference" > /dev/null; \
-	regex=".*index\\.php.*|.*action=.*|.*printable=.*|.*en.cppreference.com/book.*" \
-	regex+="|.*/(User|Special|Talk|Help|File|Cppreference|WhatLinksHere|Template|Category|MediaWiki)(_talk)?(:|%253[aA]).*" ; \
+	regex=".*index\\.php.*|.*rest\\.php.*|.*action=.*|.*printable=.*|.*en.cppreference.com/book.*" \
+	regex+="|.*/(User|Special|Talk|Help|File|Cppreference|WhatLinksHere|Template|Category|MediaWiki)(_talk)?(:|%253[aA]).*" \
+	regex+="|.*\\.cppreference\\.com/mwiki/.*" ; \
 	echo $$regex ; \
 	wget --adjust-extension --page-requisites --convert-links \
 		--force-directories --recursive --level=15 \
@@ -250,7 +254,16 @@ source:
 		--reject-regex $$regex \
 		--timeout=5 --tries=50 --no-verbose \
 		--retry-connrefused --waitretry=10 --read-timeout=20 \
-		https://en.cppreference.com/w/ ; \
+		https://en.cppreference.com/ ; \
 	popd > /dev/null
 
-	./export.py --url=https://en.cppreference.com/mwiki reference/cppreference-export-ns0,4,8,10.xml 0 4 8 10
+	# the site still points at the pre-2026 locations for images and skin
+	# files; fetch those from where they live now
+	./fixup_source.py --src reference
+
+	# The wiki source of the pages is no longer part of the copy: since the
+	# 2026 upgrade the site answers 403 to any request that names more than
+	# one page -- Special:Export and the API alike, which is what export.py
+	# asks for -- and a copy worth having is not worth 19000 requests.
+	# Nothing in the build reads it; preprocess.py threw it away.
+	#./export.py --url=https://en.cppreference.com reference/cppreference-export-ns0,4,8,10.xml 0 4 8 10

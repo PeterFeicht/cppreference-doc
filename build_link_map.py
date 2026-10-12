@@ -43,7 +43,10 @@ def build_link_map(directory):
         text = f.read()
         f.close()
 
-        m = re.search(r'<script>[^<]*mw\.config\.set([^<]*wgPageName[^<]*)</script>', text)  # noqa
+        # MediaWiki used to hand the page configuration to `mw.config.set`
+        # directly; since 1.43 it assigns it to `RLCONF` for the resource
+        # loader to pick up
+        m = re.search(r'<script>[^<]*(?:mw\.config\.set|RLCONF\s*=)([^<]*wgPageName[^<]*)</script>', text)  # noqa
         if not m:
             continue
         text = m.group(1)
