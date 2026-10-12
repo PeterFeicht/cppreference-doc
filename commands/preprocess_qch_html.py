@@ -292,6 +292,14 @@ def referenced_images(root_el, src_path):
     for el in root_el.xpath('//img[@src]'):
         add_image(images, directory, el.get('src'))
 
+    # a figure that was uploaded as a bitmap is offered at a few sizes, for
+    # the viewer to pick from by how dense the display is
+    for el in root_el.xpath('//*[@srcset]'):
+        for candidate in el.get('srcset').split(','):
+            parts = candidate.split()
+            if parts:
+                add_image(images, directory, parts[0])
+
     for el in root_el.xpath('//link[@href]'):
         if (el.get('rel') or '').strip().lower() in ICON_RELS:
             add_image(images, directory, el.get('href'))

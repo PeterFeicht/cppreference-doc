@@ -43,6 +43,7 @@ from commands.preprocess import remove_see_also
 from commands.preprocess import remove_unused_external
 from commands.preprocess import rename_files
 from commands.preprocess import transform_ranges_placeholder
+from commands.preprocess import transform_srcset
 from commands.preprocess import trasform_relative_link
 
 
@@ -135,6 +136,60 @@ class TestIsUploadLink(unittest.TestCase):
         for link in other:
             self.assertFalse(is_upload_link(link),
                              msg="Should not be an upload link: {}".format(link))  # noqa
+
+
+class TestRemoveFileinfo(unittest.TestCase):
+    def parse(self, body):
+        return etree.fromstring(body, etree.HTMLParser()).getroottree()
+
+    def test_figure_keeps_its_image(self):
+        # since the 2026 upgrade every figure is a link to the page that
+        # describes the file
+        html = self.parse(
+            '<html><body><p>before'
+            '<span typeof="mw:File">'
+            '<a href="https://en.cppreference.com/File:range-begin-end.svg"'
+            ' class="mw-file-description">'
+            '<img src="../common/images/1/1b/range-begin-end.svg"/></a>'
+            '</span>after</p></body></html>')
+
+        remove_fileinfo(html)
+
+        self.assertEqual(
+            ['../common/images/1/1b/range-begin-end.svg'],
+            html.xpath('//img/@src'))
+        self.assertEqual([], html.xpath('//a'))
+        self.assertEqual('beforeafter', ''.join(html.xpath('//p//text()')))
+
+    def test_badge_beside_the_figure_goes(self):
+        # what the pages had before: a badge of its own beside the figure
+        html = self.parse(
+            '<html><body><div><img src="../common/images/0/06/diagram.svg"/>'
+            '<div style="margin-left: 529px;">'
+            '<a href="https://en.cppreference.com/w/File:diagram.svg"'
+            ' title="About this image">'
+            '<img alt="About this image" src="../common/desc-20.png"/></a>'
+            '</div></div></body></html>')
+
+        remove_fileinfo(html)
+
+        self.assertEqual(['../common/images/0/06/diagram.svg'],
+                         html.xpath('//img/@src'))
+
+
+class TestTransformSrcset(unittest.TestCase):
+    def test_transform_srcset(self):
+        # the links of a srcset are the links of the page, each followed by
+        # the display density it is meant for
+        value = ('https://upload.cppreference.com/mwiki/images/thumb/9/91/math-atan2.png/428px-math-atan2.png 1.5x, '  # noqa
+                 'https://upload.cppreference.com/mwiki/images/thumb/9/91/math-atan2.png/570px-math-atan2.png 2x')  # noqa
+
+        self.assertEqual(
+            '../../../../common/images/thumb/9/91/math-atan2.png/428px-math-atan2.png 1.5x, '  # noqa
+            '../../../../common/images/thumb/9/91/math-atan2.png/570px-math-atan2.png 2x',  # noqa
+            transform_srcset({}, value,
+                             'output/reference/en/cpp/numeric/math/atan2.html',
+                             'output/reference'))
 
 
 class TestPreprocessCss(unittest.TestCase):

@@ -323,6 +323,21 @@ def transform_link(rename_map, target, file, root):
     return trasform_relative_link(rename_map, target, file)
 
 
+# Transforms the candidates of a srcset attribute: a comma separated list of
+# links, each followed by the display density it is meant for.
+def transform_srcset(rename_map, value, file, root):
+    candidates = []
+
+    for candidate in value.split(','):
+        parts = candidate.split()
+        if not parts:
+            continue
+        parts[0] = transform_link(rename_map, parts[0], file, root)
+        candidates.append(' '.join(parts))
+
+    return ', '.join(candidates)
+
+
 def has_class(el, *classes_to_check):
     value = el.get('class')
     if value is None:
@@ -411,12 +426,48 @@ def remove_ads(html):
             el.getparent().remove(el)
 
 
+def unwrap_element(el):
+    # put what the element holds in its place, keeping the text around it
+    parent = el.getparent()
+    index = parent.index(el)
+    children = list(el)
+
+    def add_text(text):
+        if not text:
+            return
+        if index == 0:
+            parent.text = (parent.text or '') + text
+        else:
+            parent[index - 1].tail = (parent[index - 1].tail or '') + text
+
+    add_text(el.text)
+
+    for offset, child in enumerate(children):
+        parent.insert(index + offset, child)
+
+    tail = el.tail
+    parent.remove(el)
+
+    if children:
+        children[-1].tail = (children[-1].tail or '') + (tail or '')
+    else:
+        add_text(tail)
+
+
 # remove links to file info pages (e.g. on images)
 def remove_fileinfo(html):
-    info = etree.XPath(r"//a[re:test(@href, 'https?://[a-z]+\.cppreference\.com/(w/)?File:')]/..",  # noqa
+    info = etree.XPath(r"//a[re:test(@href, 'https?://[a-z]+\.cppreference\.com/(w/)?File:')]",  # noqa
                        namespaces={'re':'http://exslt.org/regular-expressions'})  # noqa
     for el in info(html):
-        el.getparent().remove(el)
+        if has_class(el, 'mw-file-description'):
+            # Since the 2026 upgrade every figure is a link to the page that
+            # describes the file; the figure stays, the link goes.  What the
+            # pages had before was a badge beside the figure, which is what
+            # the branch below takes out, wrapper and all.
+            unwrap_element(el)
+        else:
+            parent = el.getparent()
+            parent.getparent().remove(parent)
 
 
 # make custom footer
@@ -482,6 +533,9 @@ def preprocess_html_file(root, fn, rename_map):
         el.set('src', transform_link(rename_map, el.get('src'), fn, root))
     for el in html.xpath('//*[@href]'):
         el.set('href', transform_link(rename_map, el.get('href'), fn, root))
+    for el in html.xpath('//*[@srcset]'):
+        el.set('srcset',
+               transform_srcset(rename_map, el.get('srcset'), fn, root))
 
     for err in list(parser.error_log):
         print("HTML WARN: {0}".format(err), file=output)
