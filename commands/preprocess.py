@@ -461,6 +461,14 @@ def preprocess_html_file(root, fn, rename_map):
     html = etree.parse(fn, parser)
     output = io.StringIO()
 
+    if html.getroot() is None:
+        # The parser hands back no element at all -- rather than raising --
+        # for a document with nothing in it, which is what a page that came
+        # down truncated looks like.  Leave it as it is, so that one bad file
+        # does not take the whole run with it.
+        print('Not an HTML page: {}'.format(fn), file=output)
+        return output.getvalue()
+
     remove_unused_external(html)
     remove_noprint(html, keep_footer=True)
     remove_analytics(html)
